@@ -10,15 +10,14 @@ export const PathwaysModule = angular.module('pathways', [])
 	.component('pathways', PathwaysComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 
-        appNavigationProvider.register('app.project.pathways', {
+        appNavigationProvider.register('app.pathways', {
             title: 'Pathways',
-            icon: 'timeline',
-            requiresProject: true
+            icon: 'timeline'
         });
 
         $stateProvider
             .state({
-                name: 'app.project.pathways',
+                name: 'app.pathways',
                 url: '/pathways',
                 component: 'pathways',
                 data: {

@@ -26,7 +26,7 @@ module.exports = function () {
 				minChunks: function (module) {
 					return module.context
 						&& module.context.indexOf('node_modules') !== -1
-						&& module.context.indexOf('iloop') === -1;
+						&& module.context.indexOf('metabolica') === -1;
 				}
 			}),
 			new ExtractTextPlugin('[chunkhash].[name].css'),
@@ -41,14 +41,14 @@ module.exports = function () {
 				{
 					test: /\.css$/,
 					use: ExtractTextPlugin.extract({
-						loader: 'css-loader'
+						use: 'css-loader'
 					})
 				},
 				{
 					test: /\.scss$/,
 					include: [
 						path.resolve(__dirname, 'src'),
-						path.dirname(require.resolve('iloop-frontend-core'))
+						path.dirname(require.resolve('metabolica'))
 					],
 					use: ExtractTextPlugin.extract({
 						use: [{
@@ -62,7 +62,7 @@ module.exports = function () {
 					test: /\.js$/,
 					include: [
 						path.resolve(__dirname, 'src'),
-						path.dirname(require.resolve('iloop-frontend-core'))
+						path.dirname(require.resolve('metabolica'))
 					],
 					loader: 'babel-loader',
 					query: {

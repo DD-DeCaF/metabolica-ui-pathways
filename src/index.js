@@ -1,5 +1,5 @@
 import angular from 'angular';
-import {DevAppModule} from 'iloop-frontend-core';
+import {DevAppModule} from 'metabolica';
 import {PathwaysModule} from './pathways/pathways.module';
 export {PathwaysModule} from './pathways/pathways.module';
 
