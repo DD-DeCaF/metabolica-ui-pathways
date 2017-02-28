@@ -220,8 +220,5 @@ class PathwaysController {
 export const PathwaysComponent: angular.IComponentOptions = {
     controller: PathwaysController,
     controllerAs: 'pathwaysController',
-    template: template.toString(),
-    bindings: {
-        project: '<project'
-    }
+    template: template.toString()
 };
