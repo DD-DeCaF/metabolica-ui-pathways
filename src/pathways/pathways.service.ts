@@ -1,7 +1,5 @@
 import {API_ROOT_URL} from './constants';
 
-const pathways = angular.module('pathways.factory', []);
-
 
 export class PathwaysService {
 	private $http: angular.IHttpService;
@@ -59,6 +57,3 @@ export class PathwaysService {
 		});
 	}
 }
-
-pathways.service('PathwaysService', PathwaysService);
-export default pathways;

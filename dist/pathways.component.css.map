@@ -1,1 +1,0 @@
-{"version":3,"sources":["pathways.component.css"],"names":[],"mappings":"AAAA;IACI,kBAAkB;CACrB;;AAED;IACI,8BAA8B;CACjC","file":"pathways.component.css","sourcesContent":["md-content {\n    overflow: inherit;\n}\n\nbody {\n    background-color: transparent;\n}\n"],"sourceRoot":"/source/"}

@@ -1,1 +1,0 @@
-{"version":3,"sources":["constants.ts"],"names":[],"mappings":";AAAa,oBAAY,GAAG,kCAAkC,CAAC","file":"constants.js","sourcesContent":["export const API_ROOT_URL = 'https://api.dd-decaf.eu/pathways';\n"],"sourceRoot":"/source/"}

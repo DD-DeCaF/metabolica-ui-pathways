@@ -1,33 +1,9 @@
-// Turn of WS TS inspection for the 'decaf-common' import.
-// noinspection TypeScriptCheckImport
-import {Config, dirname} from 'decaf-common';
-import './pathways.component.css!';
-import './escher-builder.css!';
-import 'jquery';
-import escherService, {EscherService} from './escher.service';
-import pathways, {PathwaysService} from './pathways.service';
+import * as angular from 'angular';
+import {EscherService} from './escher.service';
+import {PathwaysService} from './pathways.service';
+import * as template from './pathways.component.html';
 
-export const COMPONENT_NAME = 'pathways';
-const pathwaysModule = angular.module(COMPONENT_NAME, [
-	escherService.name,
-	pathways.name
-]);
-
-pathwaysModule.config(function (platformProvider) {
-	platformProvider
-		.register(COMPONENT_NAME)
-		.state(COMPONENT_NAME, {
-			url: `/${COMPONENT_NAME}`,
-			views: {
-				'content@': {
-					templateUrl: `${dirname(module.id)}/pathways.component.html`,
-					controller: PathwaysController,
-					controllerAs: 'pathwaysController'
-				}
-			}
-		});
-});
-
+import './escher_builder.scss';
 
 interface FormConfig {
 	title: string;
@@ -241,4 +217,8 @@ class PathwaysController {
 
 }
 
-export default pathwaysModule;
+export const PathwaysComponent: angular.IComponentOptions = {
+    controller: PathwaysController,
+    controllerAs: 'pathwaysController',
+    template: template.toString()
+};

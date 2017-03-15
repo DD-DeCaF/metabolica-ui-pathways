@@ -1,11 +1,6 @@
-/// <reference path="../typings/escher.d.ts"/>
-import * as escher from 'escher'
-
-// noinspection TypeScriptCheckImport
+import * as escher from 'escher-vis'
 import * as d3 from 'd3';
 import 'jquery';
-
-const escherService = angular.module('pathways.escher', []);
 
 export class EscherService {
 	direction: number;
@@ -61,7 +56,7 @@ export class EscherService {
 	};
 
 	alignReactions(data) {
-		var model = Object.assign({}, data.model);
+		var model = data.model;
 		for (var i in data.primary_nodes) {
 			for (var j in model.reactions) {
 				if (model.reactions[j].id === data.reactions[i].id) {
@@ -84,6 +79,3 @@ export class EscherService {
 		escher.Builder(null, this.alignReactions(data), null, d3.select('#' + controller_id), this.options);
 	}
 }
-
-escherService.service('EscherService', EscherService);
-export default escherService;
