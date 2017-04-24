@@ -12,7 +12,7 @@ export class EscherService {
 
 	constructor() {
 		this.direction = -90;
-		this.startCoordinates = {x: 300, y: 1000};
+		this.startCoordinates = {x: 10, y: 100};
 		this.metabolitesNames = [];
 		this.reactions = [];
 		this.self = this;

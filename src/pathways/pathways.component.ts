@@ -2,218 +2,240 @@ import * as angular from 'angular';
 import {EscherService} from './escher.service';
 import {PathwaysService} from './pathways.service';
 import * as template from './pathways.component.html';
+import {WSService} from './services/ws';
 
 import './escher_builder.scss';
 
 interface FormConfig {
-	title: string;
-	attr: string;
-	placeholder: string;
-	list: () => any[];
+    title: string;
+    attr: string;
+    placeholder: string;
+    list: () => any[];
 }
 
 class PathwaysController {
-	isDisabled: boolean;
-	isWaiting: boolean;
-	isReady: boolean;
-	models: any[];
-	universalModels: any[];
-	carbonSources: any[];
-	products: any;
-	formConfig: FormConfig[];
-	searchTexts: any;
-	message: string;
-	product: any;
-	model: any;
-	universalModel: any;
-	carbonSource: any;
-	data: any;
-	mapIdPrefix: string;
-	pathwaysService: PathwaysService;
-	escherService: EscherService;
-	private $timeout: angular.ITimeoutService;
+    isDisabled: boolean;
+    isWaiting: boolean;
+    isReady: boolean;
+    models: any[];
+    universalModels: any[];
+    carbonSources: any[];
+    products: any;
+    formConfig: FormConfig[];
+    searchTexts: any;
+    message: string;
+    product: any;
+    model: any;
+    universalModel: any;
+    carbonSource: any;
+    data: any;
+    mapIdPrefix: string;
+    pathwaysService: PathwaysService;
+    escherService: EscherService;
+    private _ws: WSService;
+    private _scope: angular.IScope;
+    private $timeout: angular.ITimeoutService;
 
-	constructor($timeout, PathwaysService: PathwaysService, EscherService: EscherService) {
-		this.$timeout = $timeout;
-		this.isDisabled = false;
-		this.isWaiting = false;
-		this.models = [];
-		this.universalModels = [];
-		this.products = {};
-		this.carbonSources = [];
-		this.pathwaysService = PathwaysService;
-		this.escherService = EscherService;
-		this.loadLists();
-		this.formConfig = [
-			{
-				'title': 'Universal model',
-				'attr': 'universalModels',
-				'placeholder': 'metanetx_universal_model_bigg_rhea_kegg',
-				'list': () => this.universalModels
-			},
-			{
-				'title': 'Model',
-				'attr': 'models',
-				'placeholder': 'iJO1366',
-				'list': () => {
-					return this.models.concat([{
-						value: this.searchTexts.universalModels,
-						display: this.searchTexts.universalModels
-					}]);
-				}
-			},
-			{
-				'title': 'Carbon source',
-				'attr': 'carbonSources',
-				'placeholder': 'EX_glc_lp_e_rp_',
-				'list': () => this.carbonSources
-			},
-			{
-				'title': 'Product',
-				'attr': 'products',
-				'placeholder': '',
-				'list': () => this.products[this.searchTexts.universalModels]
-			}
-		];
+    constructor($scope: angular.IScope, $timeout, PathwaysService: PathwaysService, EscherService: EscherService, ws: WSService) {
+        this.$timeout = $timeout;
+        this._ws = ws;
+        this._scope = $scope;
+        this.isDisabled = false;
+        this.isWaiting = false;
+        this.models = [];
+        this.universalModels = [];
+        this.products = {};
+        this.carbonSources = [];
+        this.pathwaysService = PathwaysService;
+        this.escherService = EscherService;
+        this.loadLists();
+        this.formConfig = [
+            {
+                'title': 'Universal model',
+                'attr': 'universalModels',
+                'placeholder': 'metanetx_universal_model_bigg',
+                'list': () => this.universalModels
+            },
+            {
+                'title': 'Model',
+                'attr': 'models',
+                'placeholder': 'iJO1366',
+                'list': () => {
+                    return this.models.concat([{
+                        value: this.searchTexts.universalModels,
+                        display: this.searchTexts.universalModels
+                    }]);
+                }
+            },
+            // {
+            //     'title': 'Carbon source',
+            //     'attr': 'carbonSources',
+            //     'placeholder': 'EX_glc_lp_e_rp_',
+            //     'list': () => this.carbonSources
+            // },
+            {
+                'title': 'Product',
+                'attr': 'products',
+                'placeholder': '',
+                'list': () => this.products[this.searchTexts.universalModels]
+            }
+        ];
 
-		this.searchTexts = {};
-		this.defaultSearchValues();
-		this.message = '';
-		this.product = undefined;
-		this.data = [];
-		this.mapIdPrefix = 'mapContainer';
-	}
-	defaultSearchValues() {
-		this.formConfig.forEach((value) => {
-			this.searchTexts[value.attr] = value.placeholder;
-		});
-	}
-	querySearch (query, data) {
-		return query ? data.filter( this.createFilterFor(query) ) : data;
-	}
-	createFilterFor(query) {
-		var lowercaseQuery = angular.lowercase(query);
-		return function filterFn(option) {
-			return (angular.lowercase(option.display).indexOf(lowercaseQuery) !== -1);
-		};
-	}
-	loadLists() {
-		this.loadAllUniversalModels();
-		this.loadAllModels();
-		this.loadAllCarbonSources();
-	}
-	loadAllModels() {
-		this.pathwaysService.loadModels()
-			.then((data: any) => {
-				data.data.forEach((value) => {
-					this.models.push({
-						value: value.id,
-						display: value.name + ' (' + value.id + ')'
-					});
-				});
-			});
-	}
+        this.searchTexts = {};
+        this.defaultSearchValues();
+        this.message = '';
+        this.product = undefined;
+        this.data = [];
+        this.mapIdPrefix = 'mapContainer';
 
-	loadAllUniversalModels() {
-		this.pathwaysService.loadUniversalModels()
-			.then((data: any) => {
-				data.data.forEach((value) => {
-					this.universalModels.push({
-						value: value.id,
-						display: value.name
-					});
-				});
-				this.loadAllProducts();
-			});
-	}
+        $scope.$on('messageArrived', (event, message) => {
+            console.log('arrived', message);
+            if (message) {
+                this.mergeSimilarPathways(message.pathways);
+                this.isReady = message.is_ready;
+                if (this.isReady) {
+                    this.isWaiting = false;
+                    ws.close();
+                }
+            }
+        });
 
-	loadAllProducts() {
-		angular.forEach(this.universalModels, (value) => {
-			let universalModelId = value.value;
-			this.products[universalModelId] = [];
-			this.pathwaysService.loadProducts(universalModelId)
-				.then((data: any) => {
-						data.data.forEach((productValue) => {
-							this.products[universalModelId].push({
-								value: productValue.id,
-								display: productValue.name
-							});
-						});
-					}
-				);
-		}, this.products);
-	}
+        $scope.$on('$destroy', function handler() {
+            ws.close();
+        });
+    }
+    defaultSearchValues() {
+        this.formConfig.forEach((value) => {
+            this.searchTexts[value.attr] = value.placeholder;
+        });
+    }
+    querySearch (query, data) {
+        return query ? data.filter( this.createFilterFor(query) ) : data;
+    }
+    createFilterFor(query) {
+        var lowercaseQuery = angular.lowercase(query);
+        return function filterFn(option) {
+            return (angular.lowercase(option.display).indexOf(lowercaseQuery) !== -1);
+        };
+    }
+    loadLists() {
+        this.loadAllUniversalModels();
+        this.loadAllModels();
+        this.loadAllCarbonSources();
+    }
+    loadAllModels() {
+        this.pathwaysService.loadModels()
+            .then((data: any) => {
+                data.data.forEach((value) => {
+                    this.models.push({
+                        value: value.id,
+                        display: value.name + ' (' + value.id + ')'
+                    });
+                });
+            });
+    }
 
-	loadAllCarbonSources() {
-		this.pathwaysService.loadCarbonSources()
-			.then((data: any) => data.data.forEach((value) => {
-				this.carbonSources.push({
-					value: value.id,
-					display: value.name
-				});
-			}));
-	}
+    loadAllUniversalModels() {
+        this.pathwaysService.loadUniversalModels()
+            .then((data: any) => {
+                data.data.forEach((value) => {
+                    this.universalModels.push({
+                        value: value.id,
+                        display: value.name
+                    });
+                });
+                this.loadAllProducts();
+            });
+    }
 
-	mergeSimilarPathways(data) {
-		this.data = {'broke': []};
-		let name;
-		for (var i in data) {
-			if (data[i].reactions.length != data[i].model.reactions.length) {
-				name = 'broke';
-			} else {
-				name = data[i].primary_nodes.map((x) => x.name).join(' - ');
-			}
-			if (!this.data.hasOwnProperty(name)) {
-				this.data[name] = [];
-			}
-			this.data[name].push(data[i]);
-		}
-		return this.data;
-	}
+    loadAllProducts() {
+        angular.forEach(this.universalModels, (value) => {
+            let universalModelId = value.value;
+            this.products[universalModelId] = [];
+            this.pathwaysService.loadProducts(universalModelId)
+                .then((data: any) => {
+                        data.data.forEach((productValue) => {
+                            this.products[universalModelId].push({
+                                value: productValue.id,
+                                display: productValue.name
+                            });
+                        });
+                    }
+                );
+        }, this.products);
+    }
 
-	submit() {
-		this.data = [];
-		this.message = '';
-		this.model = this.searchTexts.models;
-		this.product = this.searchTexts.products;
-		this.universalModel = this.searchTexts.universalModels;
-		this.carbonSource = this.searchTexts.carbonSources;
-		this.isWaiting = true;
-		this.isReady = false;
+    loadAllCarbonSources() {
+        this.pathwaysService.loadCarbonSources()
+            .then((data: any) => data.data.forEach((value) => {
+                this.carbonSources.push({
+                    value: value.id,
+                    display: value.name
+                });
+            }));
+    }
 
-		let tick = () => {
-			this.pathwaysService
-				.getStatus(this.universalModel, this.model, this.carbonSource, this.product)
-				.then((statusResponse) => this.pathwaysService
-					.getPathways(this.universalModel, this.model, this.carbonSource, this.product)
-					.then((dataResponse: any) => [statusResponse.status, dataResponse]))
-				.then(
-					// Success
-					([status, dataResponse]) => {
-						let data: any[] = dataResponse.data;
-						this.mergeSimilarPathways(data);
-						this.isReady = true;
-						if (status === 202) {
-							this.$timeout(tick, 1000);
-						} else {
-							this.isWaiting = false;
-							if (data.length === 0) {
-								this.message = 'Pathways not found';
-							}
-						}
-					},
-					// Error
-					([status, dataResponse]) => {
-						this.isWaiting = false;
-						if (status === 404) {
-							this.message = 'No such key';
-						}
-					}
-				);
-		};
+    mergeSimilarPathways(data) {
+        this.data = {'broke': []};
+        let name;
+        for (let i in data) {
+            if (data[i].reactions.length != data[i].model.reactions.length) {
+                name = 'broke';
+            } else {
+                name = data[i].primary_nodes.map((x) => x.name).join(' - ');
+            }
+            if (!this.data.hasOwnProperty(name)) {
+                this.data[name] = [];
+            }
+            this.data[name].push(data[i]);
+        }
+        console.log('merge', this.data);
+        // this._scope.$apply();
+        return this.data;
+    }
 
-		tick();
-	}
+    submit() {
+        this._ws.close();
+        this.data = [];
+        this.message = '';
+        this.model = this.searchTexts.models;
+        this.product = this.searchTexts.products;
+        this.universalModel = this.searchTexts.universalModels;
+        this.carbonSource = this.searchTexts.carbonSources;
+        this.isWaiting = true;
+        this.isReady = false;
+
+        let param = {
+            'product': this.product,
+            'carbonSource': 'EX_glc_lp_e_rp_',
+            'universalModel': this.universalModel,
+            'model': this.model,
+        };
+
+        this._ws.connect(true, param);
+
+        // Open WS connection if it is not opened
+        this.pathwaysService
+            .getStatus(this.universalModel, this.model, 'EX_glc_lp_e_rp_', this.product)
+            .then(
+                // Success
+                (statusResponse) => {
+                    let status = statusResponse.status;
+                    this.isReady = true;
+                    if (status !== 202) {
+                        this.isWaiting = false;
+                    }
+                },
+                // Error
+                (statusResponse) => {
+                    let status = statusResponse.status;
+                    this.isWaiting = false;
+                    if (status === 404) {
+                        this.message = 'No such key';
+                    }
+                }
+            );
+    };
 
 }
 
