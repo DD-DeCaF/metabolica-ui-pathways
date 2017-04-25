@@ -16,7 +16,6 @@ interface FormConfig {
 class PathwaysController {
     isDisabled: boolean;
     isWaiting: boolean;
-    isReady: boolean;
     models: any[];
     universalModels: any[];
     carbonSources: any[];
@@ -29,6 +28,7 @@ class PathwaysController {
     universalModel: any;
     carbonSource: any;
     data: any;
+    prevData: any;
     mapIdPrefix: string;
     pathwaysService: PathwaysService;
     escherService: EscherService;
@@ -36,7 +36,7 @@ class PathwaysController {
     private _scope: angular.IScope;
     private $timeout: angular.ITimeoutService;
 
-    constructor($scope: angular.IScope, $timeout, PathwaysService: PathwaysService, EscherService: EscherService, ws: WSService) {
+    constructor($rootScope: angular.IScope, $scope: angular.IScope, $timeout, PathwaysService: PathwaysService, EscherService: EscherService, ws: WSService) {
         this.$timeout = $timeout;
         this._ws = ws;
         this._scope = $scope;
@@ -86,18 +86,22 @@ class PathwaysController {
         this.message = '';
         this.product = undefined;
         this.data = [];
+        this.prevData = [];
         this.mapIdPrefix = 'mapContainer';
 
         $scope.$on('messageArrived', (event, message) => {
-            console.log('arrived', message);
-            if (message) {
-                this.mergeSimilarPathways(message.pathways);
-                this.isReady = message.is_ready;
-                if (this.isReady) {
-                    this.isWaiting = false;
-                    ws.close();
+            $rootScope.$apply((scope) => {
+                if (message) {
+                    this.data = this.mergeSimilarPathways(message.pathways);
+                    this.isWaiting = !message.is_ready;
+                    if (!this.isWaiting) {
+                        ws.close();
+                        if (message.pathways.length() == 0) {
+                            this.message = 'No pathways found'
+                        }
+                    }
                 }
-            }
+            });
         });
 
         $scope.$on('$destroy', function handler() {
@@ -113,7 +117,7 @@ class PathwaysController {
         return query ? data.filter( this.createFilterFor(query) ) : data;
     }
     createFilterFor(query) {
-        var lowercaseQuery = angular.lowercase(query);
+        let lowercaseQuery = angular.lowercase(query);
         return function filterFn(option) {
             return (angular.lowercase(option.display).indexOf(lowercaseQuery) !== -1);
         };
@@ -176,7 +180,7 @@ class PathwaysController {
     }
 
     mergeSimilarPathways(data) {
-        this.data = {'broke': []};
+        let result = {'broke': []};
         let name;
         for (let i in data) {
             if (data[i].reactions.length != data[i].model.reactions.length) {
@@ -184,14 +188,12 @@ class PathwaysController {
             } else {
                 name = data[i].primary_nodes.map((x) => x.name).join(' - ');
             }
-            if (!this.data.hasOwnProperty(name)) {
-                this.data[name] = [];
+            if (!result.hasOwnProperty(name)) {
+                result[name] = [];
             }
-            this.data[name].push(data[i]);
+            result[name].push(data[i]);
         }
-        console.log('merge', this.data);
-        // this._scope.$apply();
-        return this.data;
+        return result;
     }
 
     submit() {
@@ -203,7 +205,6 @@ class PathwaysController {
         this.universalModel = this.searchTexts.universalModels;
         this.carbonSource = this.searchTexts.carbonSources;
         this.isWaiting = true;
-        this.isReady = false;
 
         let param = {
             'product': this.product,
@@ -221,7 +222,6 @@ class PathwaysController {
                 // Success
                 (statusResponse) => {
                     let status = statusResponse.status;
-                    this.isReady = true;
                     if (status !== 202) {
                         this.isWaiting = false;
                     }
