@@ -96,7 +96,7 @@ class PathwaysController {
                     this.isWaiting = !message.is_ready;
                     if (!this.isWaiting) {
                         ws.close();
-                        if (message.pathways.length() == 0) {
+                        if (message.pathways.length == 0) {
                             this.message = 'No pathways found'
                         }
                     }

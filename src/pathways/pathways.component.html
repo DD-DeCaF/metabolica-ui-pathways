@@ -30,21 +30,21 @@
 				<md-card-content>
 					<md-content ng-repeat="(reaction_index, reaction) in set[0].reactions">
 						<md-list class="md-dense" flex>
-							<md-list-item class="md-2-line" ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{reaction.id}}">
+							<md-list-item class="md-2-line" ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{reaction.id}}" target="_blank">
 								<div class="md-list-item-text">
 									<h3>{{ reaction_index + 1 }}) {{ set[0].primary_nodes[reaction_index].name }}</h3>
 									<p>{{ reaction.reaction_string }}</p>
 								</div>
-								<md-tooltip md-direction="right" style="position: absolute;">
-									See on MetanetX
-								</md-tooltip>
 							</md-list-item>
+							<md-tooltip md-direction="right">
+								Open on MetanetX
+							</md-tooltip>
 						</md-list>
 					</md-content>
 					<md-content style='color:rgb(128,128,128)' class="layout-padding" ng-if="set.length != 1">and {{ set.length - 1 }} more pathways with different secondary metabolites</md-content>
 				</md-card-content>
 				<div class="md-actions" layout="row" layout-align="end center">
-					<md-button class="md-raised md-cornered" ng-click="pathwaysController.escherService.buildMap(set[0], 'escher')">Visualise (beta)</md-button>
+					<md-button class="md-raised md-cornered" ng-click="pathwaysController.escherService.buildMap(set[0], 'escher')">Visualise</md-button>
 				</div>
 			</md-card>
 		</div>
