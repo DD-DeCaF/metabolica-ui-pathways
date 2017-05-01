@@ -2,7 +2,7 @@ import angular = require("angular");
 import {EscherService} from './escher.service';
 import {PathwaysService} from './pathways.service';
 import * as template from './pathways.component.html';
-import {WSService} from './services/ws';
+import {WSServicePathways} from './services/ws';
 import './pathways.component.scss';
 import './escher_builder.scss';
 
@@ -36,7 +36,7 @@ class PathwaysController {
     progress: Number;
     pathwaysService: PathwaysService;
     escherService: EscherService;
-    private _ws: WSService;
+    private _ws: WSServicePathways;
     private _scope: angular.IScope;
     private _timeout: angular.ITimeoutService;
     private _mdSidenav: angular.material.ISidenavService;
@@ -49,7 +49,7 @@ class PathwaysController {
                 $timeout,
                 PathwaysService: PathwaysService,
                 EscherService: EscherService,
-                ws: WSService,
+                ws: WSServicePathways,
                 $interval: angular.IIntervalService
     ) {
         this._mdSidenav = $mdSidenav;

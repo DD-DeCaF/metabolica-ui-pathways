@@ -17,7 +17,7 @@ interface Callback {
 // WS url
 export const WS_PATHWAYS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
 
-export class WSService {
+export class WSServicePathways {
 
     public reconnectInterval: number = 1000;
     public timeoutInterval: number = 10000;

@@ -1,6 +1,6 @@
 import angular from 'angular';
 import toastr from 'angular-toastr';
-import {WSService} from './services/ws';
+import {WSServicePathways} from './services/ws';
 import {PathwaysService} from './pathways.service';
 import {EscherService} from './escher.service';
 import {PathwaysComponent} from './pathways.component';
@@ -12,7 +12,7 @@ export const PathwaysModule = angular.module('pathways', [
 	])
 	.service('PathwaysService', PathwaysService)
 	.service('EscherService', EscherService)
-	.service('ws', WSService)
+	.service('ws', WSServicePathways)
 	.component('pathways', PathwaysComponent)
 	.config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
 		$mdIconProvider.icon('timeline', TIMELINE, 24);
