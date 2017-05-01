@@ -15,8 +15,7 @@ interface Callback {
 
 
 // WS url
-export const WS_ROOT_URL = 'ws://localhost:9000/pathways/ws';
-// export const WS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
+export const WS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
 
 export class WSService {
 
