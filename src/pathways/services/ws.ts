@@ -104,7 +104,6 @@ export class WSService {
     }
 
     public send(data: any) {
-        console.log('send', this._ws);
         this._ws.send(data);
     }
 

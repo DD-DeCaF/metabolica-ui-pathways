@@ -43,6 +43,7 @@
 			<!--<div layout="row" layout-wrap>-->
 			<md-content>
 				<md-list class="md-dense" flex>
+					<md-subheader ng-if="!ctrl.isWaiting && ctrl.progress == 0" class="md-no-sticky">{{ ctrl.message }}</md-subheader>
 					<md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Pathways</md-subheader>
 					<md-list-item ng-repeat="(key, set) in ctrl.data" ng-click="ctrl.setUserKey(key)">
 						<p>{{ key }}</p>

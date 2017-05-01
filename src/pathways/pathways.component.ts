@@ -106,9 +106,6 @@ class PathwaysController {
         this.data = {};
         this.aggr = {};
         this.progress = 0;
-        this._timer = this._interval(() => {
-            if (this.param) this._ws.send(JSON.stringify(this.param));
-        }, 1000);
 
         $scope.$on('messageArrived', (event, message) => {
             $rootScope.$apply((scope) => {
@@ -122,6 +119,7 @@ class PathwaysController {
                     }
                     this.isWaiting = !message.is_ready;
                     if (!this.isWaiting) {
+                        this.stopPolling();
                         this.progress = 0;
                         if (message.pathways.length == 0) {
                             this.message = 'No pathways found'
@@ -135,6 +133,25 @@ class PathwaysController {
             ws.close();
         });
     }
+
+    startPolling() {
+        this._timer = this._interval(() => {
+            this._ws.send(JSON.stringify(this.param));
+        }, 1000);
+    }
+
+    stopPolling() {
+        if (angular.isDefined(this._timer)) {
+            this._interval.cancel(this._timer);
+            this._timer = undefined;
+        }
+    }
+
+    refreshPolling() {
+        this.stopPolling();
+        this.startPolling();
+    }
+
     defaultSearchValues() {
         this.formConfig.forEach((value) => {
             this.searchTexts[value.attr] = value.placeholder;
@@ -282,22 +299,18 @@ class PathwaysController {
             'universal_model_id': this.universalModel,
             'model_id': this.model,
         };
-
+        this.refreshPolling();
         this.pathwaysService
             .getStatus(this.universalModel, this.model, 'EX_glc_lp_e_rp_', this.product)
             .then(
                 // Success
                 (statusResponse) => {
-                    let status = statusResponse.status;
-                    if (status !== 202) {
-                        this.isWaiting = false;
-                    }
                 },
                 // Error
                 (statusResponse) => {
                     let status = statusResponse.status;
                     this.isWaiting = false;
-                    this._interval.cancel(this._timer);
+                    this.stopPolling();
                     if (status === 404) {
                         this.message = 'No such key';
                     }
