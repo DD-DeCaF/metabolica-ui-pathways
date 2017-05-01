@@ -1,9 +1,9 @@
-import * as angular from 'angular';
+import angular = require("angular");
 import {EscherService} from './escher.service';
 import {PathwaysService} from './pathways.service';
 import * as template from './pathways.component.html';
 import {WSService} from './services/ws';
-
+import './pathways.component.scss';
 import './escher_builder.scss';
 
 interface FormConfig {
@@ -28,17 +28,35 @@ class PathwaysController {
     universalModel: any;
     carbonSource: any;
     data: any;
-    prevData: any;
-    mapIdPrefix: string;
+    aggr: any;
+    param: any;
+    currentPathway: any;
+    currentKey: String;
+    userKey: String;
+    progress: Number;
     pathwaysService: PathwaysService;
     escherService: EscherService;
     private _ws: WSService;
     private _scope: angular.IScope;
-    private $timeout: angular.ITimeoutService;
+    private _timeout: angular.ITimeoutService;
+    private _mdSidenav: angular.material.ISidenavService;
+    private _interval: angular.IIntervalService;
+    private _timer: angular.IPromise<any>;
 
-    constructor($rootScope: angular.IScope, $scope: angular.IScope, $timeout, PathwaysService: PathwaysService, EscherService: EscherService, ws: WSService) {
-        this.$timeout = $timeout;
+    constructor($mdSidenav: angular.material.ISidenavService,
+                $rootScope: angular.IScope,
+                $scope: angular.IScope,
+                $timeout,
+                PathwaysService: PathwaysService,
+                EscherService: EscherService,
+                ws: WSService,
+                $interval: angular.IIntervalService
+    ) {
+        this._mdSidenav = $mdSidenav;
+        this._timeout = $timeout;
+        this._interval = $interval;
         this._ws = ws;
+        this._ws.connect(true);
         this._scope = $scope;
         this.isDisabled = false;
         this.isWaiting = false;
@@ -85,17 +103,26 @@ class PathwaysController {
         this.defaultSearchValues();
         this.message = '';
         this.product = undefined;
-        this.data = [];
-        this.prevData = [];
-        this.mapIdPrefix = 'mapContainer';
+        this.data = {};
+        this.aggr = {};
+        this.progress = 0;
+        this._timer = this._interval(() => {
+            if (this.param) this._ws.send(JSON.stringify(this.param));
+        }, 1000);
 
         $scope.$on('messageArrived', (event, message) => {
             $rootScope.$apply((scope) => {
                 if (message) {
-                    this.data = this.mergeSimilarPathways(message.pathways);
+                    this.progress = message.pathways.length * 10;
+                    let paths = message.pathways;
+                    this.data = this.mergeSimilarPathways(paths);
+                    let lastPathwayKey = this.lastValidPathwayKey(message.pathways);
+                    if (lastPathwayKey != this.currentKey && !this.userKey) {
+                        this.setCurrent(lastPathwayKey);
+                    }
                     this.isWaiting = !message.is_ready;
                     if (!this.isWaiting) {
-                        ws.close();
+                        this.progress = 0;
                         if (message.pathways.length == 0) {
                             this.message = 'No pathways found'
                         }
@@ -179,43 +206,83 @@ class PathwaysController {
             }));
     }
 
+    setUserKey(key) {
+        this.userKey = key;
+        this.setCurrent(key);
+    }
+
+    setCurrent(key) {
+        this.currentKey = key;
+        this.currentPathway = this.data[key][0];
+        this.escherService.buildMap(this.currentPathway, 'escher');
+    }
+
+    public toggleRight(): void{
+        this._mdSidenav('right').toggle()
+    }
+
+    pathwayID(pathway): String {
+        if (pathway.reactions.length != pathway.model.reactions.length) {
+            return undefined;
+        }
+        return pathway.primary_nodes.map((x) => x.name).join(' - ');
+    }
+
+    lastValidPathwayKey(pathways, lastInd?: number): String {
+        if (pathways.length == 0) return undefined;
+        if (lastInd == undefined) lastInd = pathways.length - 1;
+        let lastPathwayKey = this.pathwayID(pathways[lastInd]);
+        if (lastPathwayKey == undefined) return this.lastValidPathwayKey(pathways.slice(0, lastInd))
+        return lastPathwayKey;
+    }
+
     mergeSimilarPathways(data) {
-        let result = {'broke': []};
-        let name;
+        let result = {};
+        let key;
         for (let i in data) {
             if (data[i].reactions.length != data[i].model.reactions.length) {
-                name = 'broke';
-            } else {
-                name = data[i].primary_nodes.map((x) => x.name).join(' - ');
+                continue;
             }
-            if (!result.hasOwnProperty(name)) {
-                result[name] = [];
+            key = this.pathwayID(data[i]);
+            if (!result.hasOwnProperty(key)) {
+                result[key] = [];
+
             }
-            result[name].push(data[i]);
+            result[key].push(data[i]);
+            let curReactions = data[i].reactions;
+            if (!this.aggr.hasOwnProperty(key)) {
+                this.aggr[key] = [];
+                angular.forEach(curReactions, function(_){this.push({})}, this.aggr[key])
+            }
+            for (let j in curReactions) {
+                this.aggr[key][j][curReactions[j].id] = curReactions[j];
+            }
         }
         return result;
     }
 
     submit() {
-        this._ws.close();
-        this.data = [];
+        this.currentPathway = undefined;
+        this.currentKey = undefined;
+        this.userKey = undefined;
+        angular.element(document.querySelector('#escher')).empty();
+        this.data = {};
+        this.aggr = {};
         this.message = '';
+        this.progress = 0;
         this.model = this.searchTexts.models;
         this.product = this.searchTexts.products;
         this.universalModel = this.searchTexts.universalModels;
         this.carbonSource = this.searchTexts.carbonSources;
         this.isWaiting = true;
 
-        let param = {
-            'product': this.product,
-            'carbonSource': 'EX_glc_lp_e_rp_',
-            'universalModel': this.universalModel,
-            'model': this.model,
+        this.param = {
+            'product_id': this.product,
+            'carbon_source_id': 'EX_glc_lp_e_rp_',
+            'universal_model_id': this.universalModel,
+            'model_id': this.model,
         };
 
-        this._ws.connect(true, param);
-
-        // Open WS connection if it is not opened
         this.pathwaysService
             .getStatus(this.universalModel, this.model, 'EX_glc_lp_e_rp_', this.product)
             .then(
@@ -230,6 +297,7 @@ class PathwaysController {
                 (statusResponse) => {
                     let status = statusResponse.status;
                     this.isWaiting = false;
+                    this._interval.cancel(this._timer);
                     if (status === 404) {
                         this.message = 'No such key';
                     }
@@ -241,6 +309,6 @@ class PathwaysController {
 
 export const PathwaysComponent: angular.IComponentOptions = {
     controller: PathwaysController,
-    controllerAs: 'pathwaysController',
+    controllerAs: 'ctrl',
     template: template.toString()
 };

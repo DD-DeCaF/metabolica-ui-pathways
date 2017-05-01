@@ -46,10 +46,10 @@ module.exports = function () {
 				},
 				{
 					test: /\.scss$/,
-					include: [
-						path.resolve(__dirname, 'src'),
-						path.dirname(require.resolve('metabolica'))
-					],
+					// include: [
+					// 	path.resolve(__dirname, 'src'),
+					// 	path.dirname(require.resolve('metabolica'))
+					// ],
 					use: ExtractTextPlugin.extract({
 						use: [{
 							loader: 'css-loader'

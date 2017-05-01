@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-import {PathwaysService} from './../pathways.service';
 import 'angular-toastr';
 
 interface RequestDetails {
@@ -26,7 +25,6 @@ export class WSService {
     public readyState: number;
     public message: any;
 
-    private _pathwaysService: PathwaysService;
     private _forcedClose: boolean = false;
     private _timedOut: boolean = false;
     private _ws: WebSocket;
@@ -48,21 +46,15 @@ export class WSService {
         this._scope = $rootScope;
     }
 
-    public connect(reconnectAttempt: boolean, param: any) {
+    public connect(reconnectAttempt: boolean) {
         this.readyState = WebSocket.CONNECTING;
         this.message = {};
-        var pathString = '?' +
-            'product_id=' + param.product + '&' +
-            'universal_model_id=' + param.universalModel + '&' +
-            'carbon_source_id=' + param.carbonSource + '&' +
-            'model_id=' + param.model;
-        this._url = WS_ROOT_URL + pathString;
-        this._ws = new WebSocket(this._url);
+        this._ws = new WebSocket(WS_ROOT_URL);
         this.onconnecting();
 
-        var localWs = this._ws;
+        let localWs = this._ws;
 
-        var timeout = setTimeout(() => {
+        let timeout = setTimeout(() => {
             this._timedOut = true;
             localWs.close();
             this._timedOut = false;
@@ -89,7 +81,7 @@ export class WSService {
                     this.onclose(event);
                 }
                 setTimeout(() => {
-                    this.connect(true, pathString);
+                    this.connect(true);
                 }, this.reconnectInterval);
             }
         };
@@ -109,6 +101,11 @@ export class WSService {
             this._callbacks = [];
             this.onerror(event);
         };
+    }
+
+    public send(data: any) {
+        console.log('send', this._ws);
+        this._ws.send(data);
     }
 
     /**

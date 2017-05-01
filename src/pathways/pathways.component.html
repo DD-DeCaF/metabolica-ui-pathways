@@ -1,59 +1,69 @@
-<md-content class="layout-padding" layout="row" ng-cloak>
-	<div flex="65">
-		<div class="layout-padding">
-			<form ng-submit="pathwaysController.submit()">
-				<md-autocomplete ng-repeat="element in pathwaysController.formConfig"
-								 flex required
-								 ng-disabled="pathwaysController.isDisabled"
-								 md-no-cache="pathwaysController.noCache"
-								 md-selected-item="pathwaysController.selectedItems[element.attr]"
-								 md-search-text="pathwaysController.searchTexts[element.attr]"
-								 md-items="item in pathwaysController.querySearch(pathwaysController.searchTexts[element.attr], element.list())"
-								 md-item-text="item.value"
-								 md-floating-label="{{ element.title }}"
-								 md-min-length="2">
-					<md-item-template>
-						<span md-highlight-text="pathwaysController.searchTexts[data]" md-highlight-flags="^i">{{item.display}}</span>
-					</md-item-template>
-					<md-not-found>
-						Not found
-					</md-not-found>
-				</md-autocomplete>
-				<md-button type="submit" class="md-icon-button">
-					<md-icon md-font-set="material-icons"> search </md-icon>
-				</md-button>
-			</form>
-		</div>
-		<md-progress-linear ng-if="pathwaysController.isWaiting" md-mode="indeterminate"></md-progress-linear>
-		<div layout="row" layout-wrap>
-			<md-card style='width: 400px; height: 100%' ng-repeat="(key, set) in pathwaysController.data" ng-if="key != 'broke'">
-				<md-card-content>
-					<md-content ng-repeat="(reaction_index, reaction) in set[0].reactions">
-						<md-list class="md-dense" flex>
-							<md-list-item class="md-2-line" ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{reaction.id}}" target="_blank">
-								<div class="md-list-item-text">
-									<h3>{{ reaction_index + 1 }}) {{ set[0].primary_nodes[reaction_index].name }}</h3>
-									<p>{{ reaction.reaction_string }}</p>
-								</div>
-							</md-list-item>
-							<md-tooltip md-direction="right">
-								Open on MetanetX
-							</md-tooltip>
-						</md-list>
-					</md-content>
-					<md-content style='color:rgb(128,128,128)' class="layout-padding" ng-if="set.length != 1">and {{ set.length - 1 }} more pathways with different secondary metabolites</md-content>
-				</md-card-content>
-				<div class="md-actions" layout="row" layout-align="end center">
-					<md-button class="md-raised md-cornered" ng-click="pathwaysController.escherService.buildMap(set[0], 'escher')">Visualise</md-button>
-				</div>
-			</md-card>
-		</div>
-		<div layout="row" layout-align="center center">{{ pathwaysController.message }}</div>
+<!--<md-content layout="row" ng-cloak>-->
+<section class="floating-menu" layout="column" layout-align="end center" flex>
+	<md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleRight()">
+		<md-icon md-font-icon="apps">apps</md-icon>
+	</md-button>
+</section>
+<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right">
+	<form class="layout-padding" ng-submit="ctrl.submit()">
+		<md-autocomplete ng-repeat="element in ctrl.formConfig"
+						 flex required
+						 ng-disabled="ctrl.isDisabled"
+						 md-no-cache="ctrl.noCache"
+						 md-selected-item="ctrl.selectedItems[element.attr]"
+						 md-search-text="ctrl.searchTexts[element.attr]"
+						 md-items="item in ctrl.querySearch(ctrl.searchTexts[element.attr], element.list())"
+						 md-item-text="item.value"
+						 md-floating-label="{{ element.title }}"
+						 md-min-length="2">
+			<md-item-template>
+				<span md-highlight-text="ctrl.searchTexts[data]" md-highlight-flags="^i">{{item.display}}</span>
+			</md-item-template>
+			<md-not-found>
+				Not found
+			</md-not-found>
+		</md-autocomplete>
+		<md-button type="submit" class="md-icon-button">
+			<md-icon md-font-set="material-icons"> search </md-icon>
+		</md-button>
+	</form>
+</md-sidenav>
+<div class="layout-padding" layout-fill layout="column">
+	<div layout="row" flex="3">
+		<md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress > 0" md-mode="determinate" value="{{ctrl.progress}}"></md-progress-linear>
+		<md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress == 0" md-mode="indeterminate"></md-progress-linear>
 	</div>
-	<div flex="35">
-		<figure>
-			<div id="escher" style="height: 800px; width: 100%"></div>
-		</figure>
-	</div>
-</md-content>
+	<div layout="row" layout-fill flex="97">
+		<div flex="25" layout="column">
+			<figure style="margin: 0; height: 100%">
+				<div id="escher" style="height: 100%"></div>
+			</figure>
+		</div>
+		<div flex="75" layout="column">
+			<!--<div layout="row" layout-wrap>-->
+			<md-content>
+				<md-list class="md-dense" flex>
+					<md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Pathways</md-subheader>
+					<md-list-item ng-repeat="(key, set) in ctrl.data" ng-click="ctrl.setUserKey(key)">
+						<p>{{ key }}</p>
+						<md-divider inset></md-divider>
+					</md-list-item>
 
+				</md-list>
+			</md-content>
+			<md-content>
+				<md-list class="md-dense" flex>
+					<md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Reactions</md-subheader>
+					<md-list-item class="md-2-line" ng-repeat="(rInd, rList) in ctrl.aggr[ctrl.currentKey]">
+						<div class="md-list-item-text">
+							<h3>{{ rInd + 1 }}) {{ ctrl.currentPathway.primary_nodes[rInd].name }}</h3>
+							<p ng-repeat="(rID, r) in rList">
+								<a ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{rID}}" target="_blank">{{ rID }}</a>: {{ r.reaction_string }}
+							</p>
+						</div>
+					</md-list-item>
+				</md-list>
+			</md-content>
+		</div>
+	</div>
+</div>

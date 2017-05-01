@@ -12,7 +12,6 @@ export class EscherService {
 
 	constructor() {
 		this.direction = -90;
-		this.startCoordinates = {x: 0, y: 0};
 		this.metabolitesNames = [];
 		this.reactions = [];
 		this.self = this;
@@ -33,6 +32,7 @@ export class EscherService {
 			enable_keys: false,
 			first_load_callback: () => {
 				let currentThis = eval('this');
+				this.startCoordinates = {x: 0, y: (this.reactions.length/2)*400 };
 				for (let i = this.reactions.length - 1; i >= 0; i -= 1) {
 					if (i === this.reactions.length - 1) {
 						currentThis.map.new_reaction_from_scratch(
@@ -57,7 +57,7 @@ export class EscherService {
 						(this.metabolitesNames.indexOf(currentThis.map.nodes[n].name) != -1);
 				}
 				currentThis.map.draw_everything();
-				currentThis.map.zoom_extent_nodes();
+				currentThis.map.zoom_extent_canvas();
 				currentThis.map.select_none();
 			}
 		}
@@ -85,6 +85,9 @@ export class EscherService {
 		data.primary_nodes.forEach(
 			(value) => this.metabolitesNames.push(value.name)
 		);
+		if (this.reactions == data.reactions) {
+			return;
+		}
 		this.reactions = data.reactions;
 		escher.Builder(
 			null,
