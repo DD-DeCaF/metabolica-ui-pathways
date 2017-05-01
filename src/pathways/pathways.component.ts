@@ -2,7 +2,7 @@ import angular = require("angular");
 import {EscherService} from './escher.service';
 import {PathwaysService} from './pathways.service';
 import * as template from './pathways.component.html';
-import {WSServicePathways} from './services/ws';
+import {WSServicePathways} from './services/ws_pathways';
 import './pathways.component.scss';
 import './escher_builder.scss';
 
@@ -49,13 +49,13 @@ class PathwaysController {
                 $timeout,
                 PathwaysService: PathwaysService,
                 EscherService: EscherService,
-                ws: WSServicePathways,
+                wsPathways: WSServicePathways,
                 $interval: angular.IIntervalService
     ) {
         this._mdSidenav = $mdSidenav;
         this._timeout = $timeout;
         this._interval = $interval;
-        this._ws = ws;
+        this._ws = wsPathways;
         this._ws.connect(true);
         this._scope = $scope;
         this.isDisabled = false;
