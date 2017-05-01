@@ -15,7 +15,7 @@ interface Callback {
 
 
 // WS url
-export const WS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
+export const WS_PATHWAYS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
 
 export class WSService {
 
@@ -48,7 +48,7 @@ export class WSService {
     public connect(reconnectAttempt: boolean) {
         this.readyState = WebSocket.CONNECTING;
         this.message = {};
-        this._ws = new WebSocket(WS_ROOT_URL);
+        this._ws = new WebSocket(WS_PATHWAYS_ROOT_URL);
         this.onconnecting();
 
         let localWs = this._ws;
