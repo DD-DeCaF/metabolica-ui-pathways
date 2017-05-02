@@ -130,7 +130,7 @@ class PathwaysController {
         });
 
         $scope.$on('$destroy', function handler() {
-            ws.close();
+            wsPathways.close();
         });
     }
 
