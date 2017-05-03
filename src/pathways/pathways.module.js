@@ -14,7 +14,8 @@ export const PathwaysModule = angular.module('pathways', [])
 
         appNavigationProvider.register('app.pathways', {
             title: 'Pathways',
-            icon: 'timeline'
+            icon: 'timeline',
+			authRequired: false
         });
 
         $stateProvider
