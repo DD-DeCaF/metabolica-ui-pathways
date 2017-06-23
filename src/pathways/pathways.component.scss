@@ -1,13 +1,13 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/angular-toastr/2.1.1/angular-toastr.min.css');
 
 
-.floating-menu{
+pathways .floating-menu{
 	z-index: 10;
 	position: absolute;
 	right: 0;
 }
 
-#toast-container {
+pathways #toast-container {
     .toast {
         -moz-box-shadow: 0 0 12px #000000;
         -webkit-box-shadow: 0 0 12px #000000;
@@ -16,16 +16,16 @@
     }
 }
 
-.layout-min-width {
+pathways .layout-min-width {
   width: 100%;
   min-width: 450px;
 }
 
-md-content {
+pathways md-content {
     overflow: inherit;
 }
 
-body {
+pathways body {
     background-color: transparent;
 }
 
