@@ -2,7 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
-const webpackKarmaConfig = require('./webpack.config.js');
 
 // Karma configuration
 // Generated on Thu Jul 06 2017 08:19:42 GMT+0200 (CEST)
@@ -78,7 +77,6 @@ module.exports = function(config) {
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
 
-    // webpack: webpackKarmaConfig(),
     webpack: {
         devtool: 'inline-source-map',
         resolve: {
