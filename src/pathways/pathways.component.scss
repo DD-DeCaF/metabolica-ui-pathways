@@ -1,35 +1,28 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/angular-toastr/2.1.1/angular-toastr.min.css');
-
-
-pathways .floating-menu{
-	z-index: 10;
-	position: absolute;
-	right: 0;
-}
-
-pathways #toast-container {
-    .toast {
-        -moz-box-shadow: 0 0 12px #000000;
-        -webkit-box-shadow: 0 0 12px #000000;
-        box-shadow: 0 0 12px #000000;
-        opacity: 1;
-    }
-}
-
-pathways .layout-min-width {
-  width: 100%;
-  min-width: 450px;
-}
-
-pathways md-content {
-    overflow: inherit;
-}
-
-pathways body {
-    background-color: transparent;
-}
-
+@import "~angular-toastr/dist/angular-toastr.css";
 pathways {
-  display: flex;
-  flex: 1;
+    display: flex;
+    flex: 1;
+    .floating-menu {
+        z-index: 10;
+        position: absolute;
+        right: 0;
+    }
+    #toast-container {
+        .toast {
+            -moz-box-shadow: 0 0 12px #000000;
+            -webkit-box-shadow: 0 0 12px #000000;
+            box-shadow: 0 0 12px #000000;
+            opacity: 1;
+        }
+    }
+    .layout-min-width {
+        width: 100%;
+        min-width: 450px;
+    }
+    md-content {
+        overflow: inherit;
+    }
+    body {
+        background-color: transparent;
+    }
 }

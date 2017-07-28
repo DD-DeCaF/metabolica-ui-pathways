@@ -1,8 +1,8 @@
 import angular = require("angular");
-import {EscherService} from './escher.service';
-import {PathwaysService} from './pathways.service';
+import { EscherService } from './escher.service';
+import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
-import {WSServicePathways} from './services/ws_pathways';
+import { WSServicePathways } from './services/ws_pathways';
 import './pathways.component.scss';
 import './escher_builder.scss';
 
@@ -13,7 +13,7 @@ interface FormConfig {
     list: () => any[];
 }
 
-class PathwaysController {
+export class PathwaysController {
     isDisabled: boolean;
     isWaiting: boolean;
     models: any[];
@@ -113,7 +113,7 @@ class PathwaysController {
                     this.progress = message.pathways.length * 10;
                     let paths = message.pathways;
                     this.data = this.mergeSimilarPathways(paths);
-                    let lastPathwayKey = this.lastValidPathwayKey(message.pathways);
+                    let lastPathwayKey = this.lastValidPathwayKey(message.pathways, this.pathwayID);
                     if (lastPathwayKey != this.currentKey && !this.userKey) {
                         this.setCurrent(lastPathwayKey);
                     }
@@ -231,11 +231,11 @@ class PathwaysController {
     setCurrent(key) {
         this.currentKey = key;
         this.currentPathway = this.data[key][0];
-        this.escherService.buildMap(this.currentPathway, 'escher');
+        this.escherService.buildMap(this.currentPathway.model, this.product, 'escher');
     }
 
     public toggleRight(): void{
-        this._mdSidenav('right').toggle()
+        this._mdSidenav('right').toggle();
     }
 
     pathwayID(pathway): String {
@@ -245,12 +245,11 @@ class PathwaysController {
         return pathway.primary_nodes.map((x) => x.name).join(' - ');
     }
 
-    lastValidPathwayKey(pathways, lastInd?: number): String {
-        if (pathways.length == 0) return undefined;
-        if (lastInd == undefined) lastInd = pathways.length - 1;
-        let lastPathwayKey = this.pathwayID(pathways[lastInd]);
-        if (lastPathwayKey == undefined) return this.lastValidPathwayKey(pathways.slice(0, lastInd))
-        return lastPathwayKey;
+    lastValidPathwayKey(pathways, predicate: (pathway: any) => String,lastInd?: number): String {
+        return pathways
+            .map(predicate)
+            .reverse()
+            .find(x => x !== undefined);
     }
 
     mergeSimilarPathways(data) {
@@ -299,9 +298,13 @@ class PathwaysController {
             'universal_model_id': this.universalModel,
             'model_id': this.model,
         };
+        // Here we start the websocket connection
         this.refreshPolling();
+        // And this is a pure HTTP request
         this.pathwaysService
+            // Duplicate of this.param        
             .getStatus(this.universalModel, this.model, 'EX_glc_lp_e_rp_', this.product)
+            // Here we only handle the error.
             .then(
                 // Success
                 (statusResponse) => {
