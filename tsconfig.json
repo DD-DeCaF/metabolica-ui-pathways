@@ -1,4 +1,5 @@
 {
   "compilerOptions": {
+    "lib": ["es2017.object", "es6", "dom"]
   }
 }
