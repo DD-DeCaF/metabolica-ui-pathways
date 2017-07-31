@@ -5,12 +5,13 @@ import { PathwaysService } from './pathways.service';
 import { EscherService } from './escher.service';
 import { PathwaysComponent } from './pathways.component';
 import TIMELINE from '../../img/icons/timeline.svg';
+import {DevAppModule} from 'metabolica';
 
 export const PathwaysModule = angular.module('pathways', [
         toastr,
         'ngMaterial',
         'ui.router',
-        'DevApp',
+        DevAppModule.name,
     ])
     .service('PathwaysService', PathwaysService)
     .service('EscherService', EscherService)
