@@ -5,19 +5,19 @@ import { PathwaysService } from './pathways.service';
 import { EscherService } from './escher.service';
 import { PathwaysComponent } from './pathways.component';
 import TIMELINE from '../../img/icons/timeline.svg';
-import {DevAppModule} from 'metabolica';
+import {AppModule} from 'metabolica';
 
 export const PathwaysModule = angular.module('pathways', [
         toastr,
         'ngMaterial',
         'ui.router',
-        DevAppModule.name,
+        AppModule.name,
     ])
     .service('PathwaysService', PathwaysService)
     .service('EscherService', EscherService)
     .service('wsPathways', WSServicePathways)
     .component('pathways', PathwaysComponent)
-    .config(function ($mdIconProvider, $stateProvider, appNavigationProvider) {
+    .config(($mdIconProvider, $stateProvider, appNavigationProvider) => {
         $mdIconProvider.icon('timeline', TIMELINE, 24);
 
         appNavigationProvider.register('app.pathways', {

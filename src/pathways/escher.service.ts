@@ -34,7 +34,7 @@ export class EscherService {
     };
 
     addReactions(builder) {
-        const startCoordinates = { x: 0, y: (this.reactions.length / 2) * 400 };
+        const startCoordinates = { x: 100, y: (this.reactions.length / 2) * 400 + 500 };
 
         const reactionsWithNodes = this.reactions.map(
             (r, index) => [r, this.metaboliteIds[index]]

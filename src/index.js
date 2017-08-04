@@ -5,5 +5,6 @@ export {PathwaysModule} from './pathways/pathways.module';
 
 
 export const PathwaysAppModule = angular.module('PathwaysApp', [
-    PathwaysModule.name
+    DevAppModule.name,
+    PathwaysModule.name,
 ]);
