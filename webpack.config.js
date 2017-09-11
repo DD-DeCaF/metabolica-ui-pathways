@@ -95,7 +95,7 @@ module.exports = function () {
             proxy: {
                 '/api': {
                     // Set the following line to the address of the API you want to test against:
-                    target: 'https://data.dd-decaf.eu',
+                    target: 'https://iloop-staging.dd-decaf.eu',
                     secure: false,
                     changeOrigin: true
                 }
