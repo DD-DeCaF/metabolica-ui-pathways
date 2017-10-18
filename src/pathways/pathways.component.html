@@ -1,70 +1,78 @@
 <!--<md-content layout="row" ng-cloak>-->
-<section class="floating-menu" layout="column" layout-align="end center" flex>
-    <md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleRight()">
-        <md-icon md-font-icon="apps">apps</md-icon>
-    </md-button>
-</section>
-<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right">
-    <form class="layout-padding" ng-submit="ctrl.submit()">
-        <md-autocomplete ng-repeat="element in ctrl.formConfig"
-                         flex required
-                         ng-disabled="ctrl.isDisabled"
-                         md-no-cache="ctrl.noCache"
-                         md-selected-item="ctrl.selectedItems[element.attr]"
-                         md-search-text="ctrl.searchTexts[element.attr]"
-                         md-items="item in ctrl.querySearch(ctrl.searchTexts[element.attr], element.list())"
-                         md-item-text="item.value"
-                         md-floating-label="{{ element.title }}"
-                         md-min-length="2">
-            <md-item-template>
-                <span md-highlight-text="ctrl.searchTexts[data]" md-highlight-flags="^i">{{item.display}}</span>
-            </md-item-template>
-            <md-not-found>
-                Not found
-            </md-not-found>
-        </md-autocomplete>
-        <md-button type="submit" class="md-icon-button">
-            <md-icon md-font-set="material-icons"> search </md-icon>
-        </md-button>
-    </form>
-</md-sidenav>
-<div class="layout-padding" layout-fill layout="column">
-    <div layout="row" flex="3">
-        <md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress > 0" md-mode="determinate" value="{{ctrl.progress}}"></md-progress-linear>
-        <md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress == 0" md-mode="indeterminate"></md-progress-linear>
-    </div>
-    <div layout="row" layout-fill flex="97">
-        <div flex="25" layout="column">
-            <figure style="margin: 0; height: 100%">
-                <div id="escher" style="height: 100%"></div>
-            </figure>
-        </div>
-        <div flex="75" layout="column">
-            <!--<div layout="row" layout-wrap>-->
-            <md-content>
-                <md-list class="md-dense" flex>
-                    <md-subheader ng-if="!ctrl.isWaiting && ctrl.progress == 0" class="md-no-sticky">{{ ctrl.message }}</md-subheader>
-                    <md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Pathways</md-subheader>
-                    <md-list-item ng-repeat="(key, set) in ctrl.data" ng-click="ctrl.setUserKey(key)">
-                        <p>{{ key }}</p>
-                        <md-divider inset></md-divider>
-                    </md-list-item>
-
-                </md-list>
-            </md-content>
-            <md-content>
-                <md-list class="md-dense" flex>
-                    <md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Reactions</md-subheader>
-                    <md-list-item class="md-2-line" ng-repeat="(rInd, rList) in ctrl.aggr[ctrl.currentKey]">
-                        <div class="md-list-item-text">
-                            <h3>{{ rInd + 1 }}) {{ ctrl.currentPathway.primary_nodes[rInd].name }}</h3>
-                            <p ng-repeat="(rID, r) in rList">
-                                <a ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{rID}}" target="_blank">{{ rID }}</a>: {{ r.reaction_string }}
-                            </p>
-                        </div>
-                    </md-list-item>
-                </md-list>
-            </md-content>
-        </div>
+<div layout="column" flex>
+    <div layout="row" layout-xs="column" class="visualisation-module" flex="100" id="map-panel">
+        <md-content flex>
+            <div flex>
+                <section class="floating-menu" layout="column" layout-align="end center" flex>
+                        <md-button class="md-fab md-primary md-mini" ng-click="ctrl.toggleRight()">
+                            <md-icon md-font-icon="apps">apps</md-icon>
+                        </md-button>
+                    </section>
+                    <md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="right" flex>
+                        <form class="layout-padding" ng-submit="ctrl.submit()">
+                            <md-autocomplete ng-repeat="element in ctrl.formConfig"
+                                                flex required
+                                                ng-disabled="ctrl.isDisabled"
+                                                md-no-cache="ctrl.noCache"
+                                                md-selected-item="ctrl.selectedItems[element.attr]"
+                                                md-search-text="ctrl.searchTexts[element.attr]"
+                                                md-items="item in ctrl.querySearch(ctrl.searchTexts[element.attr], element.list())"
+                                                md-item-text="item.value"
+                                                md-floating-label="{{ element.title }}"
+                                                md-min-length="2">
+                                <md-item-template>
+                                    <span md-highlight-text="ctrl.searchTexts[data]" md-highlight-flags="^i">{{item.display}}</span>
+                                </md-item-template>
+                                <md-not-found>
+                                    Not found
+                                </md-not-found>
+                            </md-autocomplete>
+                            <md-button type="submit" class="md-icon-button">
+                                <md-icon md-font-set="material-icons"> search </md-icon>
+                            </md-button>
+                        </form>
+                    </md-sidenav>
+            </div>
+            <div class="layout-padding" layout-fill layout="column">
+                <div layout="row" flex="3">
+                    <md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress > 0" md-mode="determinate" value="{{ctrl.progress}}"></md-progress-linear>
+                    <md-progress-linear ng-if="ctrl.isWaiting && ctrl.progress == 0" md-mode="indeterminate"></md-progress-linear>
+                </div>
+                <div layout="row" layout-fill flex="97">
+                    <div flex="25" layout="column">
+                        <figure style="margin: 0; height: 100%">
+                            <div id="escher" style="height: 100%"></div>
+                        </figure>
+                    </div>
+                    <div flex="75" layout="column">
+                        <!--<div layout="row" layout-wrap>-->
+                        <md-content>
+                            <md-list class="md-dense" flex>
+                                <md-subheader ng-if="!ctrl.isWaiting && ctrl.progress == 0" class="md-no-sticky">{{ ctrl.message }}</md-subheader>
+                                <md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Pathways</md-subheader>
+                                <md-list-item ng-repeat="(key, set) in ctrl.data" ng-click="ctrl.setUserKey(key)">
+                                    <p>{{ key }}</p>
+                                    <md-divider inset></md-divider>
+                                </md-list-item>
+            
+                            </md-list>
+                        </md-content>
+                        <md-content>
+                            <md-list class="md-dense" flex>
+                                <md-subheader ng-if="ctrl.currentKey" class="md-no-sticky">Reactions</md-subheader>
+                                <md-list-item class="md-2-line" ng-repeat="(rInd, rList) in ctrl.aggr[ctrl.currentKey]">
+                                    <div class="md-list-item-text">
+                                        <h3>{{ rInd + 1 }}) {{ ctrl.currentPathway.primary_nodes[rInd].name }}</h3>
+                                        <p ng-repeat="(rID, r) in rList">
+                                            <a ng-href="http://www.metanetx.org/cgi-bin/mnxweb/equa_info?equa={{rID}}" target="_blank">{{ rID }}</a>: {{ r.reaction_string }}
+                                        </p>
+                                    </div>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
+                    </div>
+                </div>
+            </div>
+        </md-content>
     </div>
 </div>
