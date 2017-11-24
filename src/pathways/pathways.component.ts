@@ -42,6 +42,7 @@ export class PathwaysController {
     private _mdSidenav: angular.material.ISidenavService;
     private _interval: angular.IIntervalService;
     private _timer: angular.IPromise<any>;
+    private _$sharing: any;
 
     constructor($mdSidenav: angular.material.ISidenavService,
                 $rootScope: angular.IScope,
@@ -50,7 +51,8 @@ export class PathwaysController {
                 PathwaysService: PathwaysService,
                 EscherService: EscherService,
                 wsPathways: WSServicePathways,
-                $interval: angular.IIntervalService
+                $interval: angular.IIntervalService,
+                $sharing
     ) {
         this._mdSidenav = $mdSidenav;
         this._timeout = $timeout;
@@ -58,6 +60,7 @@ export class PathwaysController {
         this._ws = wsPathways;
         this._ws.connect(true);
         this._scope = $scope;
+        this._$sharing = $sharing;
         this.isDisabled = false;
         this.isWaiting = false;
         this.models = [];
@@ -232,6 +235,13 @@ export class PathwaysController {
         this.currentKey = key;
         this.currentPathway = this.data[key][0];
         this.escherService.buildMap(this.currentPathway.model, this.product, 'escher');
+
+        this._$sharing.provide({
+            pathwayPrediction: {
+                param: this.param,
+                model: this.currentPathway.model,
+            }
+        });
     }
 
     public toggleRight(): void{
