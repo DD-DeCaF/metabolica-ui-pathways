@@ -16,7 +16,8 @@ describe('PathwaysController', () => {
       $injector.get('PathwaysService'),
       $injector.get('EscherService'),
       $injector.get('wsPathways'),
-      $injector.get('$interval')
+      $injector.get('$interval'),
+      $injector.get('$sharing')
     );
   }));
 

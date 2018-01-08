@@ -1,6 +1,8 @@
 import angular from 'angular';
 import toastr from 'angular-toastr';
 import { WSServicePathways } from './services/ws_pathways';
+import { PathwaysAPIProvider } from './providers/pathwaysapi.provider';
+import { PathwaysWSProvider } from './providers/pathwaysws.provider';
 import { PathwaysService } from './pathways.service';
 import { EscherService } from './escher.service';
 import { PathwaysComponent } from './pathways.component';
@@ -13,6 +15,8 @@ export const PathwaysModule = angular.module('pathways', [
         'ui.router',
         AppModule.name,
     ])
+    .provider('pathwaysAPI', PathwaysAPIProvider)
+    .provider('pathwaysWS', PathwaysWSProvider)
     .service('PathwaysService', PathwaysService)
     .service('EscherService', EscherService)
     .service('wsPathways', WSServicePathways)

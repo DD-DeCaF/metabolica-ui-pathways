@@ -1,4 +1,4 @@
-import angular = require("angular");
+import * as angular from 'angular';
 import { EscherService } from './escher.service';
 import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
