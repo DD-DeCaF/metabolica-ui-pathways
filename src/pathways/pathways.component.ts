@@ -1,4 +1,4 @@
-import angular = require("angular");
+import * as angular from 'angular';
 import { EscherService } from './escher.service';
 import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
@@ -240,6 +240,8 @@ export class PathwaysController {
             pathwayPrediction: {
                 param: this.param,
                 model: this.currentPathway.model,
+                reactions: this.escherService.reactions,
+                primaryNodes: this.escherService.primaryNodes,
             }
         });
     }
@@ -317,8 +319,7 @@ export class PathwaysController {
             // Here we only handle the error.
             .then(
                 // Success
-                (statusResponse) => {
-                },
+                (statusResponse) => {},
                 // Error
                 (statusResponse) => {
                     let status = statusResponse.status;

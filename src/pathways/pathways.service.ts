@@ -1,16 +1,18 @@
-import {API_ROOT_URL} from './constants';
+import { PathwaysAPIProvider } from './providers/pathwaysapi.provider';
 
 
 export class PathwaysService {
     private $http: angular.IHttpService;
+    private api: PathwaysAPIProvider;
 
-    constructor($http) {
+    constructor($http: angular.IHttpService, pathwaysAPI: PathwaysAPIProvider) {
         this.$http = $http;
+        this.api = pathwaysAPI;
     }
     getPathways(universalModelId, modelId, carbonSourceId, productId) {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/pathways`,
+            url: `${this.api}/pathways`,
             params: {
                 'product_id': productId,
                 'model_id': modelId,
@@ -22,7 +24,7 @@ export class PathwaysService {
     getStatus(universalModelId, modelId, carbonSourceId, productId) {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/predict`,
+            url: `${this.api}/predict`,
             params: {
                 'product_id': productId,
                 'model_id': modelId,
@@ -34,26 +36,26 @@ export class PathwaysService {
     loadProducts(universalModelId) {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/lists/product`,
+            url: `${this.api}/lists/product`,
             params: {'universal_model_id': universalModelId}
         });
     }
     loadModels() {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/lists/model`
+            url: `${this.api}/lists/model`
         });
     }
     loadUniversalModels() {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/lists/universal_model`
+            url: `${this.api}/lists/universal_model`
         });
     }
     loadCarbonSources() {
         return this.$http({
             method: 'GET',
-            url: `${API_ROOT_URL}/lists/carbon_source`
+            url: `${this.api}/lists/carbon_source`
         });
     }
 }

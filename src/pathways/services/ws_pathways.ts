@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import { PathwaysWSProvider } from '../providers/pathwaysws.provider';
 
 import 'angular-toastr';
 
@@ -13,9 +14,6 @@ interface Callback {
     data: string;
 }
 
-
-// WS url
-export const WS_PATHWAYS_ROOT_URL = 'wss://api.dd-decaf.eu/pathways/ws';
 
 export class WSServicePathways {
 
@@ -32,6 +30,7 @@ export class WSServicePathways {
     private _q: angular.IQService;
     private _toastr: angular.toastr.IToastrService;
     private _scope: angular.IScope;
+    private pathwaysWS: PathwaysWSProvider;
 
     public onopen: (ev: Event) => void = function (event: Event) {};
     public onclose: (ev: CloseEvent) => void = function (event: CloseEvent) {};
@@ -39,16 +38,17 @@ export class WSServicePathways {
     public onmessage: (ev: MessageEvent) => void = function (event: MessageEvent) {};
     public onerror: (ev: ErrorEvent) => void = function (event: ErrorEvent) {};
 
-    constructor($q: angular.IQService, toastr: angular.toastr.IToastrService, $rootScope: angular.IScope) {
+    constructor($q: angular.IQService, toastr: angular.toastr.IToastrService, $rootScope: angular.IScope, pathwaysWS: PathwaysWSProvider) {
         this._q = $q;
         this._toastr = toastr;
         this._scope = $rootScope;
+        this.pathwaysWS = pathwaysWS;
     }
 
     public connect(reconnectAttempt: boolean) {
         this.readyState = WebSocket.CONNECTING;
         this.message = {};
-        this._ws = new WebSocket(WS_PATHWAYS_ROOT_URL);
+        this._ws = new WebSocket(`${this.pathwaysWS}`);
         this.onconnecting();
 
         let localWs = this._ws;
