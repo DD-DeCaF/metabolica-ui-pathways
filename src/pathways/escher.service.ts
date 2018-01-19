@@ -7,7 +7,8 @@ export class EscherService {
     private direction: number;
     private options: any;
     private metaboliteIds: any[];
-    private reactions: any[];
+    public reactions: any[];
+    public primaryNodes: any[];
     private builder: any;
 
     constructor() {
@@ -111,6 +112,7 @@ export class EscherService {
             return;
         }
         this.reactions = reactions;
+        this.primaryNodes = primaryNodes;
 
         this.metaboliteIds = primaryNodes;
         this.builder = escher.Builder(
