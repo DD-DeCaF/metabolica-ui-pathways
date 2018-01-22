@@ -20,7 +20,7 @@ export const PathwaysModule = angular.module('pathways', [
     .service('PathwaysService', PathwaysService)
     .service('EscherService', EscherService)
     .service('wsPathways', WSServicePathways)
-    .component('pathways', PathwaysComponent)
+    .component('ppPathways', PathwaysComponent)
     .config(($mdIconProvider, $stateProvider, appNavigationProvider) => {
         $mdIconProvider.icon('timeline', TIMELINE, 24);
 
@@ -34,7 +34,7 @@ export const PathwaysModule = angular.module('pathways', [
             .state({
                 name: 'app.pathways',
                 url: '/pathways',
-                component: 'pathways',
+                component: 'ppPathways',
                 data: {
                     title: 'Pathways' // FIXME look up from app nagivation provider
                 }
