@@ -1,4 +1,6 @@
 import * as angular from 'angular';
+import * as d3 from 'd3';
+
 import { EscherService } from './escher.service';
 import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
@@ -43,6 +45,9 @@ export class PathwaysController {
     private _interval: angular.IIntervalService;
     private _timer: angular.IPromise<any>;
     private _$sharing: any;
+    private builder: any;
+    // @matyasfodor figure out the proper typing
+    private escherElement: HTMLElement;
 
     constructor($mdSidenav: angular.material.ISidenavService,
                 $rootScope: angular.IScope,
@@ -52,6 +57,7 @@ export class PathwaysController {
                 EscherService: EscherService,
                 wsPathways: WSServicePathways,
                 $interval: angular.IIntervalService,
+                $element: angular.IAugmentedJQuery,
                 $sharing
     ) {
         this._mdSidenav = $mdSidenav;
@@ -69,36 +75,29 @@ export class PathwaysController {
         this.carbonSources = [];
         this.pathwaysService = PathwaysService;
         this.escherService = EscherService;
+        this.escherElement = $element.find('escher')[0];
         this.loadLists();
         this.formConfig = [
             {
-                'title': 'Universal model',
-                'attr': 'universalModels',
-                'placeholder': 'metanetx_universal_model_bigg',
-                'list': () => this.universalModels
+                title: 'Universal model',
+                attr: 'universalModels',
+                placeholder: 'metanetx_universal_model_bigg',
+                list: () => this.universalModels
             },
             {
-                'title': 'Model',
-                'attr': 'models',
-                'placeholder': 'iJO1366',
-                'list': () => {
-                    return this.models.concat([{
-                        value: this.searchTexts.universalModels,
-                        display: this.searchTexts.universalModels
-                    }]);
-                }
+                title: 'Model',
+                attr: 'models',
+                placeholder: 'iJO1366',
+                list: () => this.models.concat([{
+                    value: this.searchTexts.universalModels,
+                    display: this.searchTexts.universalModels
+                }])
             },
-            // {
-            //     'title': 'Carbon source',
-            //     'attr': 'carbonSources',
-            //     'placeholder': 'EX_glc_lp_e_rp_',
-            //     'list': () => this.carbonSources
-            // },
             {
-                'title': 'Product',
-                'attr': 'products',
-                'placeholder': '',
-                'list': () => this.products[this.searchTexts.universalModels]
+                title: 'Product',
+                attr: 'products',
+                placeholder: '',
+                list: () => this.products[this.searchTexts.universalModels]
             }
         ];
 
@@ -112,21 +111,20 @@ export class PathwaysController {
 
         $scope.$on('messageArrived', (event, message) => {
             $rootScope.$apply((scope) => {
-                if (message) {
-                    this.progress = message.pathways.length * 10;
-                    let paths = message.pathways;
-                    this.data = this.mergeSimilarPathways(paths);
-                    let lastPathwayKey = this.lastValidPathwayKey(message.pathways, this.pathwayID);
-                    if (lastPathwayKey != this.currentKey && !this.userKey) {
-                        this.setCurrent(lastPathwayKey);
-                    }
-                    this.isWaiting = !message.is_ready;
-                    if (!this.isWaiting) {
-                        this.stopPolling();
-                        this.progress = 0;
-                        if (message.pathways.length == 0) {
-                            this.message = 'No pathways found'
-                        }
+                if (!message) return;
+                const {pathways, is_ready} = message;
+                this.progress = pathways.length * 10;
+                this.data = this.mergeSimilarPathways(pathways);
+                const lastPathwayKey = this.lastValidPathwayKey(pathways, this.pathwayID);
+                if (lastPathwayKey != this.currentKey && !this.userKey) {
+                    this.setCurrent(lastPathwayKey);
+                }
+                this.isWaiting = !is_ready;
+                if (!this.isWaiting) {
+                    this.stopPolling();
+                    this.progress = 0;
+                    if (pathways.length == 0) {
+                        this.message = 'No pathways found'
                     }
                 }
             });
@@ -164,10 +162,8 @@ export class PathwaysController {
         return query ? data.filter( this.createFilterFor(query) ) : data;
     }
     createFilterFor(query) {
-        let lowercaseQuery = angular.lowercase(query);
-        return function filterFn(option) {
-            return (angular.lowercase(option.display).indexOf(lowercaseQuery) !== -1);
-        };
+        const lowercaseQuery = angular.lowercase(query);
+        return ({display}) => angular.lowercase(display).includes(lowercaseQuery)
     }
     loadLists() {
         this.loadAllUniversalModels();
@@ -180,7 +176,7 @@ export class PathwaysController {
                 data.data.forEach((value) => {
                     this.models.push({
                         value: value.id,
-                        display: value.name + ' (' + value.id + ')'
+                        display: `${value.name} (${value.id})`
                     });
                 });
             });
@@ -201,7 +197,7 @@ export class PathwaysController {
 
     loadAllProducts() {
         angular.forEach(this.universalModels, (value) => {
-            let universalModelId = value.value;
+            const universalModelId = value.value;
             this.products[universalModelId] = [];
             this.pathwaysService.loadProducts(universalModelId)
                 .then((data: any) => {
@@ -234,14 +230,16 @@ export class PathwaysController {
     setCurrent(key) {
         this.currentKey = key;
         this.currentPathway = this.data[key][0];
-        this.escherService.buildMap(this.currentPathway.model, this.product, 'escher');
-
+        const {builder, pathway} = this.escherService.buildMap(
+            this.currentPathway.model,
+            this.product,
+            d3.select(this.escherElement));
+        this.builder = builder;
         this._$sharing.provide({
             pathwayPrediction: {
                 param: this.param,
                 model: this.currentPathway.model,
-                reactions: this.escherService.reactions,
-                primaryNodes: this.escherService.primaryNodes,
+                pathway,
             }
         });
     }
@@ -274,7 +272,6 @@ export class PathwaysController {
             key = this.pathwayID(data[i]);
             if (!result.hasOwnProperty(key)) {
                 result[key] = [];
-
             }
             result[key].push(data[i]);
             let curReactions = data[i].reactions;
@@ -293,7 +290,7 @@ export class PathwaysController {
         this.currentPathway = undefined;
         this.currentKey = undefined;
         this.userKey = undefined;
-        angular.element(document.querySelector('#escher')).empty();
+        angular.element(this.escherElement).empty();
         this.data = {};
         this.aggr = {};
         this.message = '';
@@ -305,10 +302,10 @@ export class PathwaysController {
         this.isWaiting = true;
 
         this.param = {
-            'product_id': this.product,
-            'carbon_source_id': 'EX_glc_lp_e_rp_',
-            'universal_model_id': this.universalModel,
-            'model_id': this.model,
+            product_id: this.product,
+            carbon_source_id: 'EX_glc_lp_e_rp_',
+            universal_model_id: this.universalModel,
+            model_id: this.model,
         };
         // Here we start the websocket connection
         this.refreshPolling();
