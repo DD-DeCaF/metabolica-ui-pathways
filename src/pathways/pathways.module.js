@@ -6,7 +6,7 @@ import { PathwaysWSProvider } from './providers/pathwaysws.provider';
 import { PathwaysService } from './pathways.service';
 import { EscherService } from './escher.service';
 import { PathwaysComponent } from './pathways.component';
-import TIMELINE from '../../img/icons/timeline.svg';
+import EDIT from '../../img/icons/edit.svg';
 import {AppModule} from 'metabolica';
 
 export const PathwaysModule = angular.module('pathways', [
@@ -22,11 +22,11 @@ export const PathwaysModule = angular.module('pathways', [
     .service('wsPathways', WSServicePathways)
     .component('pathways', PathwaysComponent)
     .config(($mdIconProvider, $stateProvider, appNavigationProvider) => {
-        $mdIconProvider.icon('timeline', TIMELINE, 24);
+        $mdIconProvider.icon('edit', EDIT, 24);
 
         appNavigationProvider.register('app.pathways', {
-            title: 'Pathways',
-            icon: 'timeline',
+            title: 'Design',
+            icon: 'edit',
             authRequired: false
         });
 
