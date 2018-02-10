@@ -27,7 +27,8 @@ export const PathwaysModule = angular.module('pathways', [
         appNavigationProvider.register('app.pathways', {
             title: 'Design',
             icon: 'edit',
-            authRequired: false
+            authRequired: false,
+			tooltip: 'Search for new pathways to a compound of interest in your favorite model organism'
         });
 
         $stateProvider
