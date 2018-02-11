@@ -1,58 +1,41 @@
 import * as escher from '@dd-decaf/escher'
-import * as d3 from 'd3';
-
-import 'jquery';
 
 export class EscherService {
-    private direction: number;
-    private options: any;
-    private metaboliteIds: any[];
-    public reactions: any[];
-    public primaryNodes: any[];
-    private builder: any;
-
-    constructor() {
-        // TODO make it const
-        this.direction = -90;
-        this.metaboliteIds = [];
-        this.reactions = [];
-        this.options = {
-            // just show the zoom buttons
-            menu: 'zoom',
-            // do not use the smooth pan and zoom option
-            use_3d_transform: false,
-            // no editing in this map
-            enable_editing: true,
-            // show the descriptive names
-            identifiers_on_map: 'name',
-            // hide secondary metabolites
-            hide_secondary_metabolites: true,
-            // don't ask before quiting
-            never_ask_before_quit: true,
-            // disable keyboard shortcuts
-            enable_keys: false,
-        }
+    readonly direction = -90;
+    readonly options = {
+        // just show the zoom buttons
+        menu: 'zoom',
+        // do not use the smooth pan and zoom option
+        use_3d_transform: false,
+        // no editing in this map
+        enable_editing: true,
+        // show the descriptive names
+        identifiers_on_map: 'name',
+        // hide secondary metabolites
+        hide_secondary_metabolites: true,
+        // don't ask before quiting
+        never_ask_before_quit: true,
+        // disable keyboard shortcuts
+        enable_keys: false,
     };
 
-    addReactions(builder) {
-        const startCoordinates = { x: 100, y: (this.reactions.length / 2) * 400 + 500 };
+    addReactions(builder, pathway) {
+        const startCoordinates = { x: 100, y: (pathway.length / 2) * 350 };
 
-        const reactionsWithNodes = this.reactions.map(
-            (r, index) => [r, this.metaboliteIds[index]]
-        );
-        const [[firstReaction], ...restReactionWithNodes] = reactionsWithNodes.slice().reverse();
+        const [firstSegment, ...restPathwaySegment] = pathway;
         builder.map.new_reaction_from_scratch(
-            firstReaction,
+            firstSegment.reaction,
             startCoordinates,
             this.direction
         );
-        restReactionWithNodes.forEach(([reaction, nodeName]) => {
+        restPathwaySegment.forEach((pathwaySegment) => {
             // Note: Nodes behaves like an array, but it's a dicitionary
             // with sequential integer indices
-            const [nodeIndex] = Object.entries(builder.map.nodes).find(([k, v]) => v.bigg_id === nodeName);
+            const nodeIndex = Object.entries(builder.map.nodes)
+                .find(([id, node]) => node.bigg_id === pathwaySegment.node)[0];
             if (nodeIndex !== undefined) {
                 builder.map.new_reaction_for_metabolite(
-                    reaction,
+                    pathwaySegment.reaction,
                     nodeIndex,
                     this.direction
                 );
@@ -60,16 +43,15 @@ export class EscherService {
         });
 
         // Set metabolites node to primary if it's not among the metabolites.
-        const metaboliteIdSet = new Set(this.metaboliteIds)
+        const metaboliteIdSet = new Set(pathway.map(segment => segment.node));
+        // TODO create 'map' fucntion for Object.
         builder.map.nodes = Object.assign({}, ...Object.entries(builder.map.nodes)
-            .map(([index, node]) => {
-                return {
+            .map(([index, node]) => ({
                     [index]: {
                         ...node,
                         node_is_primary: metaboliteIdSet.has(node.bigg_id)
-                    }
-                }
-            }))
+                    },
+            })))
 
 
         builder.map.draw_everything();
@@ -89,39 +71,32 @@ export class EscherService {
         });
     }
 
-    // TODO this violates the SRP -> should be two separate functions.
-    /**
-     * Sorts the model's reaction and flips them if required
-     */
-    alignReactions(model, reactionIds, primaryNodes) {
-        // The keyBy + at function could be combined into a utility function
-        const reactionsById = Object.assign({}, ...model.reactions.map(r => ({ [r.id]: r })));
-        const reactionWithPrimaryNode = reactionIds.map(
-            (reactionId, index) => [reactionsById[reactionId], primaryNodes[index]]
-        );
-        const alignedReactions = reactionWithPrimaryNode.map(([reaction, primaryNode]) => {
-            return reaction.metabolites[primaryNode] > 0 ? this.reverseReaction(reaction) : reaction;
-        });
-        return { ...model, reactions: alignedReactions };
-    }
-
-    buildMap(model, productName, controller_id) {
+    buildMap(model, productName, target) {
         const product = model.metabolites.find(m => m.name === productName);
-        const { reactions, primaryNodes } = escher.PathwayGraph.sortedReactionsProducts(model.reactions, product.id)
-        if (this.reactions == reactions) {
-            return;
-        }
-        this.reactions = reactions;
-        this.primaryNodes = primaryNodes;
+        const pathway = escher.PathwayGraph.sortedReactionsProducts(model.reactions, product.id)
+        // Move to utility module
+        const reactionsById = Object.assign({}, ...model.reactions.map(r => ({ [r.id]: r })));
 
-        this.metaboliteIds = primaryNodes;
-        this.builder = escher.Builder(
+        const builder = escher.Builder(
             null,
-            this.alignReactions(model, reactions, primaryNodes),
+            {
+                ...model,
+                reactions: pathway
+                    .map(segment => ({
+                        ...segment,
+                        reaction: reactionsById[segment.reaction]
+                    }))
+                    .map((segment) => (segment.reaction.metabolites[segment.node] > 0 
+                        ? this.reverseReaction(segment.reaction) : segment.reaction)),
+            },
             null,
-            d3.select('#' + controller_id),
+            target,
             this.options
         );
-        this.addReactions(this.builder);
+        this.addReactions(builder, pathway);
+        return {
+            builder,
+            pathway,
+        }
     }
 }

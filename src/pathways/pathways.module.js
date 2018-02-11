@@ -6,7 +6,7 @@ import { PathwaysWSProvider } from './providers/pathwaysws.provider';
 import { PathwaysService } from './pathways.service';
 import { EscherService } from './escher.service';
 import { PathwaysComponent } from './pathways.component';
-import TIMELINE from '../../img/icons/timeline.svg';
+import EDIT from '../../img/icons/edit.svg';
 import {AppModule} from 'metabolica';
 
 export const PathwaysModule = angular.module('pathways', [
@@ -20,21 +20,22 @@ export const PathwaysModule = angular.module('pathways', [
     .service('PathwaysService', PathwaysService)
     .service('EscherService', EscherService)
     .service('wsPathways', WSServicePathways)
-    .component('pathways', PathwaysComponent)
+    .component('ppPathways', PathwaysComponent)
     .config(($mdIconProvider, $stateProvider, appNavigationProvider) => {
-        $mdIconProvider.icon('timeline', TIMELINE, 24);
+        $mdIconProvider.icon('edit', EDIT, 24);
 
         appNavigationProvider.register('app.pathways', {
-            title: 'Pathways',
-            icon: 'timeline',
-            authRequired: false
+            title: 'Design',
+            icon: 'edit',
+            authRequired: false,
+			tooltip: 'Search for new pathways to a compound of interest in your favorite model organism'
         });
 
         $stateProvider
             .state({
                 name: 'app.pathways',
                 url: '/pathways',
-                component: 'pathways',
+                component: 'ppPathways',
                 data: {
                     title: 'Pathways' // FIXME look up from app nagivation provider
                 }
