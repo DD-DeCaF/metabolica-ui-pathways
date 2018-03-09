@@ -1,3 +1,4 @@
+
 {
   "name": "metabolica-pathways",
   "version": "1.1.0",
@@ -13,8 +14,8 @@
     "typescript": "^2.4.1"
   },
   "scripts": {
-    "build": "webpack",
-    "start": "webpack-dev-server",
+    "build": "webpack --config ./webpack.config.common",
+    "start": "webpack-dev-server --config ./webpack.config.local",
     "test": "./node_modules/.bin/karma start --browsers=ChromeHeadless",
     "test-ui": "./node_modules/.bin/karma start --browsers=Chrome"
   },
@@ -54,6 +55,7 @@
     "ts-loader": "^2.0.0",
     "typescript": "2.4.1",
     "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.3.0"
+    "webpack-dev-server": "^2.3.0",
+    "webpack-merge": "^4.1.2"
   }
 }
