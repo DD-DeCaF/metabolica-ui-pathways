@@ -2,11 +2,11 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
-const webpackCommon = require('./webpack.config.common');
+const webpackTest = require('./webpack.config.test');
 // Karma configuration
 // Generated on Thu Jul 06 2017 08:19:42 GMT+0200 (CEST)
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -47,7 +47,7 @@ module.exports = function(config) {
     devtool: 'source-map',
 
     mime: {
-      'text/x-typescript': ['ts','tsx']
+      'text/x-typescript': ['ts', 'tsx']
     },
 
     // web server port
@@ -77,7 +77,9 @@ module.exports = function(config) {
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
 
-    webpack: webpackCommon,
+    webpack: webpackTest,
+
+
 
     // Concurrency level
     // how many browser should be started simultaneous

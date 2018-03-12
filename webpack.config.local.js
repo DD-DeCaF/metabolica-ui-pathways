@@ -1,6 +1,7 @@
 const path = require('path');
 const merge = require('webpack-merge');
 const webpackCommon = require('./webpack.config.common');
+const webpackTest = require('./webpack.config.test')
 const local = {
     devtool: 'source-map',
     devServer: {
@@ -15,5 +16,5 @@ const local = {
         }
     }
 }
-
+console.log("MERGE LOCAL",merge(webpackCommon, local));
 module.exports = merge(webpackCommon, local);

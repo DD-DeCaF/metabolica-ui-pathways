@@ -2,18 +2,16 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
+const merge = require('webpack-merge');
+const webpackTest = require('./webpack.config.test');
 
-
-module.exports = {
+module.exports = merge(webpackTest,{
     entry: {
-        main: './src/index.js'
+        main: './src/index.js',
     },
     output: {
         filename: '[chunkhash].[name].js',
         path: path.resolve(__dirname, 'dist')
-    },
-    resolve: {
-        extensions: ['.ts', '.tsx', '.js']
     },
     node: {
         fs: "empty",
@@ -38,48 +36,6 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/,
-                use: ExtractTextPlugin.extract({
-                    use: 'css-loader'
-                })
-            },
-            {
-                test: /\.scss$/,
-                // include: [
-                // 	path.resolve(__dirname, 'src'),
-                // 	path.dirname(require.resolve('metabolica'))
-                // ],
-                use: ExtractTextPlugin.extract({
-                    use: [{
-                        loader: 'css-loader'
-                    }, {
-                        loader: 'sass-loader'
-                    }]
-                })
-            },
-            {
-                test: /\.js$/,
-                include: [
-                    path.resolve(__dirname, 'src'),
-                    path.dirname(require.resolve('metabolica'))
-                ],
-                loader: 'babel-loader',
-                query: {
-                    presets: ['es2015', 'stage-0'],
-                    plugins: [
-                        'transform-runtime'
-                    ]
-                }
-            },
-            {
-                test: /\.html$/,
-                loader: 'html-loader'
-            },
-            {
-                test: /\.(jpe?g|png|svg)$/,
-                loader: 'file-loader?name=[path][name].[ext]'
-            },
-            {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
                 include: [
@@ -89,4 +45,4 @@ module.exports = {
             }
         ]
     }
-};
+});
