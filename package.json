@@ -9,12 +9,12 @@
     "angular-toastr": "github:Foxandxss/angular-toastr",
     "d3": "^3.5.17",
     "jquery": "^3.1.1",
-    "metabolica": "github:biosustain/metabolica-ui",
+    "metabolica": "github:DD-DeCaF/metabolica-ui#devel",
     "typescript": "^2.4.1"
   },
   "scripts": {
-    "build": "webpack --config ./webpack.config.common",
-    "start": "webpack-dev-server --config ./webpack.config.local",
+    "build": "webpack --config webpack.config.build.js",
+    "start": "webpack-dev-server --config webpack.config.local.js",
     "test": "./node_modules/.bin/karma start --browsers=ChromeHeadless",
     "test-ui": "./node_modules/.bin/karma start --browsers=Chrome"
   },
@@ -55,6 +55,7 @@
     "typescript": "2.4.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0",
-    "webpack-merge": "^4.1.2"
+    "webpack-merge": "^4.1.2",
+    "webpack-node-externals": "^1.6.0"
   }
 }

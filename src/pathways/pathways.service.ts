@@ -1,4 +1,5 @@
 import { PathwaysAPIProvider } from './providers/pathwaysapi.provider';
+import * as angular from "angular";
 
 
 export class PathwaysService {
@@ -9,7 +10,7 @@ export class PathwaysService {
         this.$http = $http;
         this.api = pathwaysAPI;
     }
-    getPathways(universalModelId, modelId, carbonSourceId, productId) {
+    getPathways(universalModelId, modelId, carbonSourceId, productId): angular.IPromise<any> {
         return this.$http({
             method: 'GET',
             url: `${this.api}/pathways`,
@@ -21,7 +22,7 @@ export class PathwaysService {
             }
         });
     }
-    getStatus(universalModelId, modelId, carbonSourceId, productId) {
+    getStatus(universalModelId, modelId, carbonSourceId, productId): angular.IPromise<any>{
         return this.$http({
             method: 'GET',
             url: `${this.api}/predict`,
@@ -33,26 +34,26 @@ export class PathwaysService {
             }
         });
     }
-    loadProducts(universalModelId) {
+    loadProducts(universalModelId):  angular.IPromise<any> {
         return this.$http({
             method: 'GET',
             url: `${this.api}/lists/product`,
             params: {'universal_model_id': universalModelId}
         });
     }
-    loadModels() {
+    loadModels(): angular.IPromise<any> {
         return this.$http({
             method: 'GET',
             url: `${this.api}/lists/model`
         });
     }
-    loadUniversalModels() {
+    loadUniversalModels():  angular.IPromise<any> {
         return this.$http({
             method: 'GET',
             url: `${this.api}/lists/universal_model`
         });
     }
-    loadCarbonSources() {
+    loadCarbonSources():  angular.IPromise<any>{
         return this.$http({
             method: 'GET',
             url: `${this.api}/lists/carbon_source`

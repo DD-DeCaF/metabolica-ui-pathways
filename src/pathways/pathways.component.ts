@@ -8,7 +8,7 @@ import { WSServicePathways } from './services/ws_pathways';
 import './pathways.component.scss';
 import './escher_builder.scss';
 
-interface FormConfig {
+export interface FormConfig {
     title: string;
     attr: string;
     placeholder: string;
