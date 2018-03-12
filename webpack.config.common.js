@@ -1,54 +1,24 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const webpack = require('webpack');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 
 module.exports = {
-    entry: {
-        main: './src/index.js'
-    },
-    output: {
-        filename: '[chunkhash].[name].js',
-        path: path.resolve(__dirname, 'dist')
-    },
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
-    node: {
-        fs: "empty",
-        child_process: "empty"
-    },
-    plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            names: ['vendor', 'manifest'],
-            minChunks: function (module) {
-                return module.context
-                    && module.context.indexOf('node_modules') !== -1
-                    && module.context.indexOf('metabolica') === -1;
-            }
-        }),
+    plugins:[
         new ExtractTextPlugin('[chunkhash].[name].css'),
-        new HtmlWebpackPlugin({
-            inject: 'head',
-            template: './src/index.html',
-            filename: 'index.html'
-        })
     ],
     module: {
         rules: [
             {
                 test: /\.css$/,
                 use: ExtractTextPlugin.extract({
-                    use: 'css-loader'
-                })
+                    loader: 'css-loader'
+                }),
             },
             {
                 test: /\.scss$/,
-                // include: [
-                // 	path.resolve(__dirname, 'src'),
-                // 	path.dirname(require.resolve('metabolica'))
-                // ],
                 use: ExtractTextPlugin.extract({
                     use: [{
                         loader: 'css-loader'
@@ -84,9 +54,9 @@ module.exports = {
                 loader: "ts-loader",
                 include: [
                     path.resolve(__dirname, 'src'),
-                    __dirname
+                    __dirname,
                 ]
             }
         ]
-    }
+    },
 };
