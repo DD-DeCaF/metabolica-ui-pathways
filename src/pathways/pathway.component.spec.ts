@@ -8,6 +8,7 @@ describe('PathwaysController', () => {
   
   beforeEach(angular.mock.inject(($injector) => {
     const $rootScope = $injector.get('$rootScope');
+    const element = angular.element('<div></div>');
     pathwaysController = new PathwaysController(
       $injector.get('$mdSidenav'),
       $rootScope,
@@ -17,7 +18,7 @@ describe('PathwaysController', () => {
       $injector.get('EscherService'),
       $injector.get('wsPathways'),
       $injector.get('$interval'),
-      $injector.get('$element'),
+      element,
       $injector.get('$sharing')
     );
   }));
