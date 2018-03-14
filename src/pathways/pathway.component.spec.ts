@@ -32,6 +32,8 @@ describe('PathwaysController', () => {
       $injector.get('wsPathways'),
       $injector.get('$interval'),
       $injector.get('$element'),
+      $injector.get('$http'),
+      $injector.get('decafAPI'),
       $injector.get('$sharing')
     );
   }));

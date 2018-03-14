@@ -17,11 +17,11 @@ import { PathwaysAPIProvider } from './providers/pathwaysapi.provider';
 
 export class PathwaysService {
     private $http: angular.IHttpService;
-    private api: PathwaysAPIProvider;
+    private api: string;
 
     constructor($http: angular.IHttpService, pathwaysAPI: PathwaysAPIProvider) {
         this.$http = $http;
-        this.api = pathwaysAPI;
+        this.api = `${pathwaysAPI}`;
     }
     getPathways(universalModelId, modelId, carbonSourceId, productId) {
         return this.$http({
