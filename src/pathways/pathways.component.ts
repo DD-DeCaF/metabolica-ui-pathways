@@ -18,7 +18,9 @@ import * as d3 from 'd3';
 import { EscherService } from './escher.service';
 import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
+import { DecafAPIProvider } from './providers/decafapi.provider';
 import { WSServicePathways } from './services/ws_pathways';
+
 import './pathways.component.scss';
 import './escher_builder.scss';
 
@@ -60,6 +62,8 @@ export class PathwaysController {
     private _timer: angular.IPromise<any>;
     private _$sharing: any;
     private builder: any;
+    private pathwayMapSupportedModels: string[];
+
     // @matyasfodor figure out the proper typing
     private escherElement: HTMLElement;
 
@@ -72,6 +76,8 @@ export class PathwaysController {
                 wsPathways: WSServicePathways,
                 $interval: angular.IIntervalService,
                 $element: angular.IAugmentedJQuery,
+                $http: angular.IHttpService,
+                decafAPI: DecafAPIProvider,
                 $sharing
     ) {
         this._mdSidenav = $mdSidenav;
@@ -147,6 +153,11 @@ export class PathwaysController {
         $scope.$on('$destroy', function handler() {
             wsPathways.close();
         });
+
+        $http.get(`${decafAPI}/maps`)
+            .then((response) => {
+                this.pathwayMapSupportedModels = Object.keys(response.data);
+            })
     }
 
     startPolling() {
@@ -249,13 +260,18 @@ export class PathwaysController {
             this.product,
             d3.select(this.escherElement));
         this.builder = builder;
-        this._$sharing.provide({
-            pathwayPrediction: {
-                param: this.param,
-                model: this.currentPathway.model,
-                pathway,
-            }
-        });
+        if (this.pathwayMapSupportedModels.includes(this.model)) {
+            this._$sharing.provide({
+                pathwayPrediction: {
+                    param: this.param,
+                    model: this.currentPathway.model,
+                    modelId: this.model,
+                    pathway,
+                }
+            });
+        } else {
+            this._$sharing.clearProvisions();
+        }
     }
 
     public toggleRight(): void{
