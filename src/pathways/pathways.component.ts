@@ -31,6 +31,11 @@ interface FormConfig {
     list: () => any[];
 }
 
+const errorMessages = {
+    '404': 'No such key',
+    '-1': 'Our servers are under heavy load, the request timed out. Please try agian later',
+};
+
 export class PathwaysController {
     isDisabled: boolean;
     isWaiting: boolean;
@@ -353,9 +358,7 @@ export class PathwaysController {
                     let status = statusResponse.status;
                     this.isWaiting = false;
                     this.stopPolling();
-                    if (status === 404) {
-                        this.message = 'No such key';
-                    }
+                    this.message = errorMessages[status] || this.message;
                 }
             );
     };
