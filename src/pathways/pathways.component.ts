@@ -160,7 +160,7 @@ export class PathwaysController {
             sideNav.open();
         });
 
-        $scope.$on('$destroy', function handler() {
+        $scope.$on('$destroy', () => {
             this.stopPolling();
             wsPathways.close();
         });
