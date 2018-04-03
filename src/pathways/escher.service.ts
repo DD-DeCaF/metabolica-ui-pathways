@@ -15,7 +15,7 @@
 import * as escher from '@dd-decaf/escher'
 
 export class EscherService {
-    readonly direction = -90;
+    readonly direction = 90;
     readonly options = {
         // just show the zoom buttons
         menu: 'zoom',
@@ -34,7 +34,7 @@ export class EscherService {
     };
 
     addReactions(builder, pathway) {
-        const startCoordinates = { x: 100, y: (pathway.length / 2) * 350 };
+        const startCoordinates = { x: 100, y: -350 };
 
         const [firstSegment, ...restPathwaySegment] = pathway;
         builder.map.new_reaction_from_scratch(
