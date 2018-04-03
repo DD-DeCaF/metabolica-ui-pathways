@@ -151,6 +151,7 @@ export class PathwaysController {
         });
 
         $scope.$on('$destroy', function handler() {
+            this.stopPolling();
             wsPathways.close();
         });
 
