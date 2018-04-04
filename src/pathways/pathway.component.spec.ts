@@ -34,7 +34,8 @@ describe('PathwaysController', () => {
       $injector.get('$element'),
       $injector.get('$http'),
       $injector.get('decafAPI'),
-      $injector.get('$sharing')
+      $injector.get('$sharing'),
+      $injector.get('$mdComponentRegistry')
     );
   }));
 

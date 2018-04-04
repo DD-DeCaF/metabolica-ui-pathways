@@ -83,7 +83,8 @@ export class PathwaysController {
                 $element: angular.IAugmentedJQuery,
                 $http: angular.IHttpService,
                 decafAPI: DecafAPIProvider,
-                $sharing
+                $sharing,
+                $mdComponentRegistry
     ) {
         this._mdSidenav = $mdSidenav;
         this._timeout = $timeout;
@@ -155,7 +156,11 @@ export class PathwaysController {
             });
         });
 
-        $scope.$on('$destroy', function handler() {
+        $mdComponentRegistry.when('right').then((sideNav) => {
+            sideNav.open();
+        });
+
+        $scope.$on('$destroy', () => {
             this.stopPolling();
             wsPathways.close();
         });
