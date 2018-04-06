@@ -1,10 +1,26 @@
+// Copyright 2018 Novo Nordisk Foundation Center for Biosustainability, DTU.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import * as angular from 'angular';
 import * as d3 from 'd3';
 
 import { EscherService } from './escher.service';
 import { PathwaysService } from './pathways.service';
 import * as template from './pathways.component.html';
+import { DecafAPIProvider } from './providers/decafapi.provider';
 import { WSServicePathways } from './services/ws_pathways';
+
 import './pathways.component.scss';
 import './escher_builder.scss';
 
@@ -14,6 +30,11 @@ interface FormConfig {
     placeholder: string;
     list: () => any[];
 }
+
+const errorMessages = {
+    '404': 'No such key',
+    '-1': 'Our servers are under heavy load, the request timed out. Please try agian later',
+};
 
 export class PathwaysController {
     isDisabled: boolean;
@@ -46,6 +67,8 @@ export class PathwaysController {
     private _timer: angular.IPromise<any>;
     private _$sharing: any;
     private builder: any;
+    private pathwayMapSupportedModels: string[];
+
     // @matyasfodor figure out the proper typing
     private escherElement: HTMLElement;
 
@@ -58,7 +81,10 @@ export class PathwaysController {
                 wsPathways: WSServicePathways,
                 $interval: angular.IIntervalService,
                 $element: angular.IAugmentedJQuery,
-                $sharing
+                $http: angular.IHttpService,
+                decafAPI: DecafAPIProvider,
+                $sharing,
+                $mdComponentRegistry
     ) {
         this._mdSidenav = $mdSidenav;
         this._timeout = $timeout;
@@ -130,9 +156,19 @@ export class PathwaysController {
             });
         });
 
-        $scope.$on('$destroy', function handler() {
+        $mdComponentRegistry.when('right').then((sideNav) => {
+            sideNav.open();
+        });
+
+        $scope.$on('$destroy', () => {
+            this.stopPolling();
             wsPathways.close();
         });
+
+        $http.get(`${decafAPI}/maps`)
+            .then((response) => {
+                this.pathwayMapSupportedModels = Object.keys(response.data);
+            })
     }
 
     startPolling() {
@@ -235,13 +271,18 @@ export class PathwaysController {
             this.product,
             d3.select(this.escherElement));
         this.builder = builder;
-        this._$sharing.provide({
-            pathwayPrediction: {
-                param: this.param,
-                model: this.currentPathway.model,
-                pathway,
-            }
-        });
+        if (this.pathwayMapSupportedModels.includes(this.model)) {
+            this._$sharing.provide({
+                pathwayPrediction: {
+                    param: this.param,
+                    model: this.currentPathway.model,
+                    modelId: this.model,
+                    pathway,
+                }
+            });
+        } else {
+            this._$sharing.clearProvisions();
+        }
     }
 
     public toggleRight(): void{
@@ -311,7 +352,7 @@ export class PathwaysController {
         this.refreshPolling();
         // And this is a pure HTTP request
         this.pathwaysService
-            // Duplicate of this.param        
+            // Duplicate of this.param
             .getStatus(this.universalModel, this.model, 'EX_glc_lp_e_rp_', this.product)
             // Here we only handle the error.
             .then(
@@ -322,9 +363,7 @@ export class PathwaysController {
                     let status = statusResponse.status;
                     this.isWaiting = false;
                     this.stopPolling();
-                    if (status === 404) {
-                        this.message = 'No such key';
-                    }
+                    this.message = errorMessages[status] || this.message;
                 }
             );
     };
