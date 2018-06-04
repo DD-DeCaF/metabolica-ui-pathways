@@ -165,7 +165,7 @@ export class PathwaysController {
             wsPathways.close();
         });
 
-        $http.get(`${decafAPI}/maps`)
+        $http.get(`${decafAPI}/model/maps`)
             .then((response) => {
                 this.pathwayMapSupportedModels = Object.keys(response.data);
             })
