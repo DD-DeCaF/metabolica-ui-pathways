@@ -198,8 +198,8 @@ export class PathwaysController {
         return query ? data.filter( this.createFilterFor(query) ) : data;
     }
     createFilterFor(query) {
-        const lowercaseQuery = angular.lowercase(query);
-        return ({display}) => angular.lowercase(display).includes(lowercaseQuery)
+        const lowercaseQuery = query.toLowerCase();
+        return ({display}) => display.toLowerCase().includes(lowercaseQuery)
     }
     loadLists() {
         this.loadAllUniversalModels();
